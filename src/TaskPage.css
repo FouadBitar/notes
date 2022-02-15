@@ -1,0 +1,33 @@
+.Task-Input{
+    font-size: 14px;
+    font-family: "Open Sans", sans-serif;
+    width: 600px;
+    height: 100px;
+    border: 0.5px solid black;
+  }
+  
+  .Task-Container{
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .App {
+    padding-top: 50px;
+    padding-right: 50px;
+    padding-bottom: 50px;
+    padding-left: 50px;
+  }
+  
+  .Add-Task-Button {
+    text-align: center;
+  
+    width: 50%;
+  }
+  
+  .Button-Container {
+    text-align: center;
+  }
+  
+  .Delete-Button {
+    margin-right: 10px;
+  }

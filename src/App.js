@@ -1,23 +1,34 @@
-import logo from './logo.svg';
 import './App.css';
+import TaskPage from './TaskPage';
+import CompletedPage from './CompletedPage'
+import React, { useState } from 'react';
+
+
+// should either store the taskpage object as state in this App function or make App a class as well
+
 
 function App() {
+
+  const [isTaskPage, setIsTaskPage] = useState(true);
+
+
+  function returnPage() {
+    if(isTaskPage){
+      return <TaskPage></TaskPage>
+    } else {
+      return <CompletedPage></CompletedPage>
+    }
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+
+      <div>
+        <button onClick={() => setIsTaskPage(true)}>Tasks</button>
+        <button onClick={() => setIsTaskPage(false)}>Completed</button>
+      </div>
+
+      {returnPage()}
     </div>
   );
 }
