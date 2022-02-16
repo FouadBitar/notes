@@ -44,9 +44,7 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-
         
-        {console.log("app is re-rendered")}
         <div>
           <button onClick={() => this.setIsTaskPage(true)}>Tasks</button>
           <button onClick={() => this.setIsTaskPage(false)}>Completed</button>

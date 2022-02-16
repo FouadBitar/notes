@@ -47,20 +47,18 @@ class TaskPage extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = props.taskState;
-
         this.handleChange = this.handleChange.bind(this);
         this.returnToActiveTasks = this.returnToActiveTasks.bind(this);
-        this.incrementCount = this.incrementCount.bind(this);
         this.addTask = this.addTask.bind(this);
         this.removeTask = this.removeTask.bind(this);
         this.markAsDone = this.markAsDone.bind(this);
     }
 
 
-
     handleChange(id, newValue) {
-        const newTasks = this.state.tasks.map((task) => {
+        let state = this.props.taskState;
+
+        const newTasks = state.tasks.map((task) => {
             if (task.id === id) {
                 const updatedTask = {
                     ...task,
@@ -73,92 +71,45 @@ class TaskPage extends React.Component {
             return task;
         });
 
-        //update parent state
-        const newState = { ...this.state, tasks: newTasks };
+        const newState = { ...state, tasks: newTasks };
         this.props.onStateChange(newState);
-
-        this.setState({ tasks: newTasks });
     }
 
 
     returnToActiveTasks(task) {
-        const newCompletedTasks = this.state.completedTasks.filter((item) => item.id !== task.id);
-        let newTasks = this.state.tasks;
+        let state = this.props.taskState;
+        const newCompletedTasks = state.completedTasks.filter((item) => item.id !== task.id);
+        let newTasks = state.tasks;
         let newTask = {...task, completed: false};
         newTasks.push(newTask);
 
 
-        //update parent state
-        const newState = { ...this.state, tasks: newTasks, completedTasks: newCompletedTasks };
+        const newState = { ...state, tasks: newTasks, completedTasks: newCompletedTasks };
         this.props.onStateChange(newState);
-
-
-        this.setState({ tasks: newTasks, completedTasks: newCompletedTasks });
-    }
-
-
-    incrementCount(){
-        let currentCount = this.state.count;
-
-        //update parent state
-        const newState = { ...this.state, count: currentCount + 1 };
-        this.props.onStateChange(newState);
-
-        this.setState({ count: currentCount + 1});
     }
 
     addTask(){
-        let id = this.state.count + 1;
+        let state = this.props.taskState;
+        let id = state.count + 1;
         const newTask = {id: id, taskText: '', completed: false};
 
-        let tasks = this.state.tasks;
+        let tasks = state.tasks;
 
-        //update parent state
-        const newState = { ...this.state, tasks: [...tasks, newTask] };
+        let currentCount = state.count;
+
+        const newState = { ...state, tasks: [...tasks, newTask], count: currentCount + 1 };
         this.props.onStateChange(newState);
-
-        this.setState({ tasks: [...tasks, newTask]});
-
-        this.incrementCount();
     }
 
     removeTask({ id }){
-        const newTasks = this.state.tasks.filter((task) => task.id !== id);
-        console.log("new tasks:");
-        console.log(newTasks);
-
-        //update parent state
-        const newState = { ...this.state, tasks: newTasks };
+        let state = this.props.taskState;
+        const newTasks = state.tasks.filter((task) => task.id !== id);
+        
+        const newState = { ...state, tasks: newTasks };
         this.props.onStateChange(newState);        
-
-        this.setState({ tasks: newTasks });
     }
 
     markAsDone(task){
-        let completedTask = this.state.tasks.find((item) => item.id === task.id);
-        completedTask = {
-            ...completedTask,
-            completed: true
-        };
-
-        const newTasks = this.state.tasks.filter((task) => task.id !== completedTask.id);     
-
-        this.setState({ tasks: newTasks });
-
-
-        let newCompletedTasks = this.state.completedTasks;
-        newCompletedTasks.push(completedTask);
-        console.log("new completed tasks");
-        console.log(newCompletedTasks);
-
-        //update parent state
-        const newState = { ...this.state, completedTasks: newCompletedTasks, tasks: newTasks };
-        this.props.onStateChange(newState);
-
-        this.setState({ completedTasks: newCompletedTasks });
-    }
-
-    markAsDone2(task){
         let state = this.props.taskState;
         let completedTask = state.tasks.find((item) => item.id === task.id);
         completedTask = {
@@ -173,12 +124,10 @@ class TaskPage extends React.Component {
 
         const newState = { ...state, completedTasks: newCompletedTasks, tasks: newTasks };
         this.props.onStateChange(newState);
-
     }
 
     render() {
-        console.log("task page is re-rendered");
-        console.log(this.props.taskState);
+        
         return(
             <div className="App">
 
@@ -190,7 +139,7 @@ class TaskPage extends React.Component {
                     <div>
                         <Task id={item.id} taskText={item.taskText} onChange={this.handleChange} />
                         <button onClick={() => this.removeTask(item)} className="Delete-Button">delete</button>
-                        <button onClick={() => this.markAsDone2(item)}>done</button>
+                        <button onClick={() => this.markAsDone(item)}>done</button>
                     </div>
                     )
                 })}
