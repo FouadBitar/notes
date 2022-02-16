@@ -1,36 +1,62 @@
 import './App.css';
 import TaskPage from './TaskPage';
 import CompletedPage from './CompletedPage'
-import React, { useState } from 'react';
+import React from 'react';
 
 
-// should either store the taskpage object as state in this App function or make App a class as well
+// going to lift the state up to the top parent of App, then will pass down to child necessary state
 
+class App extends React.Component {
 
-function App() {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isTaskPage: true,
+      taskState: {
+        tasks: [{id: 1, taskText: '', completed: false}],
+        completedTasks: [],
+        count: 1
+      }
+    };
+    
+    this.returnPage = this.returnPage.bind(this);
+    this.setIsTaskPage = this.setIsTaskPage.bind(this);
+    this.onStateChange = this.onStateChange.bind(this);
+  }
 
-  const [isTaskPage, setIsTaskPage] = useState(true);
+  onStateChange(newState) {
+    this.setState({ ...this.state, taskState: newState });
+  }
 
-
-  function returnPage() {
-    if(isTaskPage){
-      return <TaskPage></TaskPage>
+  returnPage() {
+    if(this.state.isTaskPage){
+      return <TaskPage taskState={this.state.taskState} onStateChange={this.onStateChange}></TaskPage>
     } else {
+      console.log(this.state.taskState);
       return <CompletedPage></CompletedPage>
     }
   }
 
-  return (
-    <div className="App">
+  setIsTaskPage(value) {
+    this.setState({ isTaskPage: value });
+  }
 
-      <div>
-        <button onClick={() => setIsTaskPage(true)}>Tasks</button>
-        <button onClick={() => setIsTaskPage(false)}>Completed</button>
+  render() {
+    return (
+      <div className="App">
+
+        
+        {console.log("app is re-rendered")}
+        <div>
+          <button onClick={() => this.setIsTaskPage(true)}>Tasks</button>
+          <button onClick={() => this.setIsTaskPage(false)}>Completed</button>
+        </div>
+  
+        {this.returnPage()}
       </div>
-
-      {returnPage()}
-    </div>
-  );
+    );
+  }
+  
 }
 
 export default App;
