@@ -1,8 +1,26 @@
+.Tab-Container {
+  text-align: center;
+  width: 50%;
+  margin: auto;
+}
+
+.Tab-Button-Container {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.Tab-Button {
+  text-align: center;
+  width: 90%;
+  height: 30px;
+  margin-bottom: 10px;
+}
+
 .Task-Input{
   font-size: 14px;
   font-family: "Open Sans", sans-serif;
   width: 600px;
-  height: 100px;
+  height: 50px;
   border: 0.5px solid black;
 }
 
@@ -11,22 +29,29 @@
   margin-bottom: 10px;
 }
 
+.side-nav {
+  height: 100%;
+  width: 150px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: cornsilk;
+  overflow-x: hidden;
+  float: left;
+
+}
+
 .App {
-  padding-top: 50px;
-  padding-right: 50px;
-  padding-bottom: 50px;
-  padding-left: 50px;
+  width: 150px;
+  margin-left: 170px;
 }
 
-.Add-Task-Button {
-  text-align: center;
-
-  width: 50%;
+.app-nav-container {
+  width: 100%;
 }
 
-.Button-Container {
-  text-align: center;
-}
+
 
 .Delete-Button {
   margin-right: 10px;
