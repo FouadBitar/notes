@@ -1,0 +1,34 @@
+.Note-Input{
+    font-size: 14px;
+    font-family: "Open Sans", sans-serif;
+    width: 600px;
+    /* height: 50px; */
+    border: 0.5px solid black;
+    overflow: auto;
+    resize: vertical;
+  }
+
+  .Archive-Note-Input{
+    font-size: 14px;
+    font-family: "Open Sans", sans-serif;
+    width: 600px;
+    height: 50px;
+    border: 0.5px solid rgb(18, 175, 31);
+  }
+  
+  .Note-Container{
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  
+  .Add-Note-Button {
+    text-align: center;
+    margin-top: 15px;
+    width: 150px;
+    height: 30px;
+  }
+  
+  .Delete-Button {
+    margin-right: 10px;
+  }
