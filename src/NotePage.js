@@ -1,6 +1,7 @@
 import './NotePage.css';
 import Note from './Note';
 import React from 'react';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 
 const Button = (props) => {
@@ -49,25 +50,32 @@ function NotePage(props) {
     }
     
     return(
-        <div>
-
-            <Button onClick={addNote} text="Add" className="Add-Note-Button" />
-            <h3>Notes</h3>
-            {props.noteState.notes.map( (item, i) => {
-                return(
-                <div key={item.id}>
-                    <Note 
-                        id={item.id} 
-                        text={item.text} 
-                        onChange={handleChange} 
-                        archived={item.archived}
-                        />
-                    <button id={item.id + '-delete'} onClick={() => removeNote(item)} className="Delete-Button">delete</button>
-                    <button id={item.id + '-done'} onClick={() => markAsDone(item)}>done</button>
-                </div>
-                )
-            })}
+        <div className="row" >
+            <div className="col" >
+                {props.noteState.notes.map( (item, i) => {
+                    return(
+                        <div key={item.id} className='row m-0 mb-3'>
+                            <div className='col'>
+                                <Note 
+                                    id={item.id} 
+                                    text={item.text} 
+                                    onChange={handleChange} 
+                                    archived={item.archived}
+                                />
+                            </div>
+                            <div className='col-2 pe-0 ps-0 h-100'>
+                                <button id={item.id + '-delete'} onClick={() => removeNote(item)} className="btn btn-danger btn-sm m-1 button-done-delete button-small">Delete</button>
+                                <button id={item.id + '-done'} onClick={() => markAsDone(item)} className="btn btn-success btn-sm m-1 button-done-delete button-small">Done</button>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+            <div className="col-1 add-button">
+                <Button onClick={addNote} text="+" className="btn btn-outline-dark btn-circle" />
+            </div>
         </div>
+        
     );
 }
 

@@ -10,18 +10,23 @@ function ArchivedPage(props) {
     }
 
     return(
-        <div>
-            <h3>Archived</h3>
-            {props.noteState.archivedNotes.map( (item, i) => {
-                return(
-                    <div key={item.id}>
-                        {console.log(item.archived)}
-                        <Note id={item.id} text={item.text} archived={item.archived} />
-                        <button onClick={() => returnToActiveNotes(item)}>return</button>
-                    </div>
-                )
-            })}
+        <div className='row'>
+            <div className='col'>
+                {props.noteState.archivedNotes.map( (item, i) => {
+                    return(
+                        <div key={item.id} className='row'>
+                            <div className='col'>
+                                <Note id={item.id} text={item.text} archived={item.archived} />
+                            </div>
+                            <div className='col-3'>
+                                <button className='btn btn-dark btn-sm' onClick={() => returnToActiveNotes(item)}>return</button>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
         </div>
+        
     );
 }
 
