@@ -3,7 +3,15 @@ import { regexCheckID, sortArray } from './Utils';
 import NotePage from './NotePage';
 import ArchivePage from './ArchivedPage'
 import React from 'react';
+import notesLogo from './images/notes-logo.png';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
+
+// TODO
+// can make folders on the left side for organization
+// move the notes/archived tabs to the top nav bar
+// add the pin option to the left of each note, so that it goes to the top of the page
+// maybe add the option to be able to move around the notes so that they are in a different order
 
 class App extends React.Component {
 
@@ -261,21 +269,39 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="app-nav-container">
-        {/* the left side navigation bar */}
-        <div className="side-nav">
-          {/* <div className="Tab-Container"> */}
-          <div className="Tab-Button-Container">
-            <button className="Tab-Button" onClick={() => this.setIsNotePage(true)}>Notes</button>
-            <button className="Tab-Button" onClick={() => this.setIsNotePage(false)}>Archived</button>
-          </div>
-        </div>
+        <div className="container-fluid app-container">
 
-        {/* the right side */}
-        <div className="App">
-          {this.returnPage()}
+            {/* logo bar */}
+            <div className="row border border-dark">
+              <div className="logo-container">
+                <img className="logo" src={notesLogo} alt=""></img>
+                <h3 id="logo-title">Notes</h3>
+                <button className="btn btn-outline-dark h-100 ms-3 rounded-0 border-0" onClick={() => this.setIsNotePage(true)}>Notes</button>
+                <button className="btn btn-outline-dark h-100 ms-3 rounded-0 border-0" onClick={() => this.setIsNotePage(false)}>Archived</button>
+              </div>
+            </div>
+
+            {/* main row */}
+            <div className="row main-container" style={{"height": "fit-content", "minHeight":"100%"}}>
+
+              {/* left nav bar */}
+              <div className="col-2 pt-3 nav-container h-100" >
+                <span className='row pb-2 w-100'>
+                  {/* <button className="btn btn-outline-dark" onClick={() => this.setIsNotePage(true)}>Notes</button> */}
+                </span>
+                <span className='row w-100'>
+                  {/* <button className="btn btn-outline-dark" onClick={() => this.setIsNotePage(false)}>Archived</button> */}
+                </span>
+              </div>
+
+              {/* display page */}
+              <div className="col pt-3 display-page">
+                {this.returnPage()}
+              </div>
+
+            </div>
+
         </div>
-      </div>
       
     );
   }

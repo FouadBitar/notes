@@ -1,58 +1,38 @@
-.Tab-Container {
-  text-align: center;
-  width: 50%;
-  margin: auto;
+.app-container {
+  height: 100vh;
+  overflow: auto;
 }
 
-.Tab-Button-Container {
-  text-align: center;
-  margin-top: 10px;
+.logo-container {
+  background-color:#00CC99;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 80px;
 }
 
-.Tab-Button {
-  text-align: center;
-  width: 90%;
-  height: 30px;
-  margin-bottom: 10px;
+#logo-title {
+  margin: 0;
 }
 
-.Task-Input{
-  font-size: 14px;
-  font-family: "Open Sans", sans-serif;
-  width: 600px;
-  height: 50px;
-  border: 0.5px solid black;
+.logo {
+  width: 70px;
+  height: 70px;
+  vertical-align: middle;
 }
 
-.Task-Container{
-  margin-top: 10px;
-  margin-bottom: 10px;
+.nav-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.side-nav {
-  height: 100%;
-  width: 150px;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  background-color: cornsilk;
-  overflow-x: hidden;
-  float: left;
-
+.main-container {
+  border-right: 1px solid #212529;
+  border-left: 1px solid #212529;
+  border-bottom: 1px solid #212529;
 }
 
-.App {
-  width: 150px;
-  margin-left: 170px;
-}
-
-.app-nav-container {
-  width: 100%;
-}
-
-
-
-.Delete-Button {
-  margin-right: 10px;
+.display-page {
+  border-left: 1px solid #212529;
 }
