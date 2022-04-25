@@ -1,7 +1,7 @@
-import './NotePage.css';
+import '../CSS/NotePage.css';
 import Note from './Note';
 import React from 'react';
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 
 const Button = (props) => {
