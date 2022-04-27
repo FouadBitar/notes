@@ -13,3 +13,11 @@
 .modal-content {
     width:50%;
 }
+
+.buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

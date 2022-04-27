@@ -10,7 +10,14 @@ function Modal(props) {
         <div className='modal'>
             <div className='modal-content'>
                 <input id='modal-input' className='form-control' placeholder='enter folder name...'></input>
-                <button className='btn btn-primary' onClick={(e) => props.onClose('modal-input')}>submit</button>
+                <div style={{"color": "red"}}>
+                    <p>{(props.errorMessage) ? props.errorMessage : ""}</p>
+                </div>
+                <div className='buttons'>
+                    <button className='btn btn-primary w-40 me-3' onClick={(e) => props.onClose('modal-input')}>submit</button>
+                    <button className='btn btn-primary w-40 ms-3' onClick={(e) => props.onCancel()}>cancel</button>
+                </div>
+                
             </div>
         </div>
     );

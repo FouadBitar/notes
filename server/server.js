@@ -19,6 +19,8 @@ app.get('/', db.getNotes)
 
 app.post('/add', db.addNote)
 
+app.post('/add/foldername', db.addFolderName)
+
 app.put('/update', db.updateNote)
 
 app.delete('/delete/:id', db.deleteNote)
