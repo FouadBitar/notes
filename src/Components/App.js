@@ -5,6 +5,8 @@ import ArchivePage from './ArchivedPage'
 import Modal from './Modal'
 import React from 'react';
 import notesLogo from '../images/notes-logo.png';
+import folderXLogo from '../../node_modules/bootstrap-icons/icons/folder-x.svg';
+import penLogo from '../../node_modules/bootstrap-icons/icons/pen.svg';
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -15,6 +17,13 @@ import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 // maybe add the option to be able to move around the notes so that they are in a different order
 // use typescript
 
+
+// FOLDERS FEATURE
+// add edit button next to "add folder"
+// when pressed it will show a delete and edit button next to each folder on the right
+// delete will check if all notes are deleted first
+// edit will show the modal again with the text of the folder already and will update its name along with all of the ones in the database.
+
 class App extends React.Component {
 
   constructor(props) {
@@ -22,10 +31,14 @@ class App extends React.Component {
     this.state = {
       isNotePage: true,
       isModal: false,
+      inFolderEditMode: false,
       noteState: {
         notes: [],
         archivedNotes: []
       },
+      folders: [],
+      currentFolder: null,
+      errorMessage: '',
       noteClickedId: '-1',
     };
     
@@ -36,8 +49,12 @@ class App extends React.Component {
     this.onUpdateNote = this.onUpdateNote.bind(this);
     this.getData = this.getData.bind(this);
     this.addNewRowToDatabase = this.addNewRowToDatabase.bind(this);
+    this.addFolderNameToDatabase = this.addFolderNameToDatabase.bind(this);
     this.handleClickEvent = this.handleClickEvent.bind(this);
     this.onAddFolder = this.onAddFolder.bind(this);
+    this.onCancel = this.onCancel.bind(this);
+    this.diplayEditMode = this.diplayEditMode.bind(this);
+    this.onFolderDelete = this.onFolderDelete.bind(this);
         
   }
 
@@ -142,22 +159,29 @@ class App extends React.Component {
          method: 'get',
          headers: {'Content-Type': 'application/json'},
        }).then(response => response.json()).then(data => {
+         
+
 
           //convert all dates to readable format
           // data.forEach((item,i) => data[i] = { ...item, last_updated: new Date(item.last_updated.replace(' ', 'T')) })
-          data.forEach((item,i) => data[i] = { ...item, last_updated: new Date(item.last_updated) })
+          data.notes.forEach((item,i) => data[i] = { ...item, last_updated: new Date(item.last_updated) })
 
 
           //separate archived from active
-          let archived = data.filter(item => item.archived === true);
-          let active = data.filter(item => item.archived === false);
+          let archived = data.notes.filter(item => item.archived === true);
+          let active = data.notes.filter(item => item.archived === false);
 
           //sort the lists
           archived = sortArray(archived);
           active = sortArray(active);
 
 
-          this.setState({ ...this.state, noteState: { ...this.state.noteState, notes: active, archivedNotes: archived } })
+          this.setState({ 
+            ...this.state, 
+            folders: data.folder_names, 
+            currentFolder: (data.folder_names[0] ? data.folder_names[0] : null),
+            noteState: { ...this.state.noteState, notes: active, archivedNotes: archived } 
+          })
     })
   }
 
@@ -165,7 +189,7 @@ class App extends React.Component {
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(row)
+      body: JSON.stringify({note: row, folder: this.state.currentFolder})
     };
     fetch('http://localhost:3000/add', requestOptions)
         .then(response => response.json())
@@ -180,6 +204,20 @@ class App extends React.Component {
           active = sortArray(active);
 
           this.setState({ ...this.state, noteState: { ...this.state.noteState, notes: active, archivedNotes: archived } })
+      });
+  }
+
+  addFolderNameToDatabase(row) {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(row)
+    };
+    fetch('http://localhost:3000/add/foldername', requestOptions)
+        .then(response => response.json())
+        .then(data => {
+          //update state with new list of folder names
+          this.setState({ ...this.state, folders: data })
       });
   }
 
@@ -246,6 +284,7 @@ class App extends React.Component {
     if(this.state.isNotePage){
       return <NotePage 
           noteState={this.state.noteState} 
+          currentFolder={this.state.currentFolder}
           onStateChange={this.onStateChange}
           onAddNote={this.onAddNote}
           onRemoveNote={this.onRemoveNote}
@@ -264,19 +303,49 @@ class App extends React.Component {
 
 
   onAddFolder(value) {
-    this.setState({...this.state, isModal: false})
     let val = document.getElementById(value).value;
-    console.log(val)
+
+    // cannot add empty folder name
+    if(val === "") {
+      this.setState({...this.state, errorMessage: "Cannot add empty folder name"});
+    } else {
+      this.addFolderNameToDatabase({name: val})
+      this.setState({...this.state, isModal: false, errorMessage: ''})
+    }
+
+    
+  }
+
+  onFolderDelete() {
+    
 
   }
 
+  onCancel() {
+    this.setState({...this.state, isModal: false, errorMessage: ''})
+  }
+
+  diplayEditMode() {
+    if(this.state.inFolderEditMode) {
+      return (
+        <div>
+          <button className='btn btn-sm btn-outline-dark w-20' onClick={this.onFolderDelete}>
+            <img src={folderXLogo} alt="" />
+          </button>
+          <button className='btn btn-sm btn-outline-dark w-20'>
+            <img src={penLogo} alt="" />
+          </button>
+        </div>
+      );
+    }
+    return null;
+  }
 
 
 
   render() {
     return (
         <div className="container-fluid app-container">
-
 
             {/* logo bar */}
             <div className="row border border-dark">
@@ -294,10 +363,30 @@ class App extends React.Component {
               {/* left nav bar */}
               <div className="col-2 pt-3 ps-0 pe-0 nav-container h-100" >
                 <div className='row pb-3 w-100 d-flex justify-content-center align-items-center border-bottom border-dark'>
-                  <button className='btn btn-sm btn-outline-dark btn-circle w-75' 
-                    onClick={()=> this.setState({...this.state, isModal: true})}>
-                      Add Folder
-                  </button>
+                  <div className='ps-1 pe-1 mb-4 w-90 d-flex justify-content-center'>
+                    <button className='m-1 btn btn-sm btn-outline-dark' 
+                      onClick={()=> this.setState({...this.state, isModal: true})}>
+                        Add Folder
+                    </button>
+                    <button onClick={() => this.setState({...this.state, inFolderEditMode: !this.state.inFolderEditMode})} className='m-1 btn btn-sm btn-outline-dark w-100'>Edit</button>
+
+                  </div>
+                  
+
+                  {/* folders */}
+                  {this.state.folders.map( (item, i) => {
+                    return(
+                    <div key={item.id} className='row mb-2'>
+                      <button 
+                        className='btn btn-outline-dark btn-sm w-60' 
+                        onClick={() => this.setState({...this.state, currentFolder: item})}
+                        style={(this.state.currentFolder.name === item.name) ? {"color": "white", "backgroundColor": "#212529"} : {}}>
+                          {item.name}
+                      </button>
+                      {this.diplayEditMode()}
+                    </div>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -310,7 +399,7 @@ class App extends React.Component {
 
             {/* Modal */}
 
-            <Modal show={this.state.isModal} onClose={this.onAddFolder} ></Modal>
+            <Modal show={this.state.isModal} errorMessage={this.state.errorMessage} onClose={this.onAddFolder} onCancel={this.onCancel}></Modal>
 
         </div>
       

@@ -36,3 +36,8 @@
 .display-page {
   border-left: 1px solid #212529;
 }
+
+.button-selected {
+  color: white;
+  background-color: #212529;
+}
