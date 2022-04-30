@@ -1,16 +1,15 @@
 const Pool = require('pg').Pool
-// postgres://otvejxcaqohnkd:d3992e18f9bd5a5645266937f8b1db42d5274f8a75c77a22e14a6e27aa178019@ec2-176-34-211-0.eu-west-1.compute.amazonaws.com:5432/d89303eanmsasg
-// const config = {
-//   connectionString: 'postgres://otvejxcaqohnkd:d3992e18f9bd5a5645266937f8b1db42d5274f8a75c77a22e14a6e27aa178019@ec2-176-34-211-0.eu-west-1.compute.amazonaws.com:5432/d89303eanmsasg?sslmode=require',
-// };
 
-const pool = new Pool();
-
-
+const pool = new Pool({
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 
 
 const getNotes = (request, response) => {
+  console.log('get notes is called in database\n\n\n');
   pool.query('SELECT * FROM notes', (error1, results1) => {
     if (error1) {
       throw error1
@@ -20,6 +19,11 @@ const getNotes = (request, response) => {
       if (error2) {
         throw error2
       } 
+      console.log("results from get 1: \n\n");
+      console.log(results1);
+
+      console.log("results from get 2: \n\n");
+      console.log(results2);
 
       response.status(200).json({notes: results1.rows, folder_names: results2.rows, test: "this is a test"})
     })

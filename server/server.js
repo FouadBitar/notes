@@ -39,6 +39,6 @@ app.put('/update', db.updateNote)
 app.delete('/delete/:id', db.deleteNote)
 
   
-app.listen(port, () => {
+app.listen((process.env.PORT || port), () => {
     console.log(`App running on port ${port}.`)
 })
