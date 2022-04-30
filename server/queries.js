@@ -1,15 +1,16 @@
 const Pool = require('pg').Pool
-const pool = new Pool({
-  user: 'fouadbitar',
-  host: 'localhost',
-  database: 'notes_database',
-  password: 'ghost',
-  port: 5432,
-})
+// postgres://otvejxcaqohnkd:d3992e18f9bd5a5645266937f8b1db42d5274f8a75c77a22e14a6e27aa178019@ec2-176-34-211-0.eu-west-1.compute.amazonaws.com:5432/d89303eanmsasg
+// const config = {
+//   connectionString: 'postgres://otvejxcaqohnkd:d3992e18f9bd5a5645266937f8b1db42d5274f8a75c77a22e14a6e27aa178019@ec2-176-34-211-0.eu-west-1.compute.amazonaws.com:5432/d89303eanmsasg?sslmode=require',
+// };
+
+const pool = new Pool();
+
+
+
 
 
 const getNotes = (request, response) => {
-  // get notes
   pool.query('SELECT * FROM notes', (error1, results1) => {
     if (error1) {
       throw error1
@@ -26,11 +27,12 @@ const getNotes = (request, response) => {
 }
 
 const addNote = async (request, response) => {
+  console.log(request.body);
   const note = request.body.note;
   const folder = request.body.folder;
   try {
-    await pool.query("INSERT INTO notes(text, archived, last_updated, folder) VALUES ($1, $2, current_timestamp, $3);",
-      [note.text, note.archived, folder.name])
+    await pool.query("INSERT INTO notes(text, last_updated, folder) VALUES ($1, current_timestamp, $2);",
+      [note.text, folder.name])
     const getallnotes = await pool.query('SELECT * FROM notes');
     response.status(200).json(getallnotes.rows)
 
