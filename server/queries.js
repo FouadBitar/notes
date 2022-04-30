@@ -18,6 +18,11 @@ const getNotes = (request, response) => {
       if (error2) {
         throw error2
       } 
+      console.log("results from get 1: \n\n");
+      console.log(results1);
+
+      console.log("results from get 2: \n\n");
+      console.log(results2);
 
       response.status(200).json({notes: results1.rows, folder_names: results2.rows, test: "this is a test"})
     })
