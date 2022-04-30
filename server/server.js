@@ -1,8 +1,15 @@
+require('dotenv').config()
+console.log(typeof process.env.APP_USER)
+
 const express = require('express')
 const bodyParser = require('body-parser')
 var cors = require('cors')
+const path = require('path')
 const app = express()
 const port = 3000
+
+
+
 
 app.use(cors())
 
@@ -15,7 +22,13 @@ app.use(
   })
 )
 
-app.get('/', db.getNotes)
+app.use(express.static(path.join(__dirname, 'build')))
+
+app.get('/', function(req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'))
+})
+
+app.get('/sup', db.getNotes)
 
 app.post('/add', db.addNote)
 

@@ -161,7 +161,7 @@ class App extends React.Component {
 
   getData() {
     console.log('get data is called');
-    fetch('http://localhost:3000/', {
+    fetch('http://localhost:3000/sup', {
          method: 'get',
          headers: {'Content-Type': 'application/json'},
        }).then(response => response.json()).then(data => {
@@ -213,8 +213,9 @@ class App extends React.Component {
           // //sort the lists
           // archived = sortArray(archived);
           // active = sortArray(active);
+          console.log(data);
 
-          let notes = sortArray(data.notes);
+          let notes = sortArray(data);
 
           this.setState({ 
             ...this.state, 
@@ -256,7 +257,7 @@ class App extends React.Component {
           // archived = sortArray(archived);
           // active = sortArray(active);
 
-          let notes = sortArray(data.notes);
+          let notes = sortArray(data);
 
           this.setState({ 
             ...this.state, 
@@ -283,7 +284,7 @@ class App extends React.Component {
           // archived = sortArray(archived);
           // active = sortArray(active);
 
-          let notes = sortArray(data.notes);
+          let notes = sortArray(data);
 
           this.setState({ 
             ...this.state, 
