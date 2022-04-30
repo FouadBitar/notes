@@ -9,6 +9,7 @@ const pool = new Pool({
 
 
 const getNotes = (request, response) => {
+  console.log('get notes is called in database\n\n\n');
   pool.query('SELECT * FROM notes', (error1, results1) => {
     if (error1) {
       throw error1
