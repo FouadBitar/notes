@@ -1,8 +1,4 @@
 const Pool = require('pg').Pool
-// postgres://otvejxcaqohnkd:d3992e18f9bd5a5645266937f8b1db42d5274f8a75c77a22e14a6e27aa178019@ec2-176-34-211-0.eu-west-1.compute.amazonaws.com:5432/d89303eanmsasg
-// const config = {
-//   connectionString: 'postgres://otvejxcaqohnkd:d3992e18f9bd5a5645266937f8b1db42d5274f8a75c77a22e14a6e27aa178019@ec2-176-34-211-0.eu-west-1.compute.amazonaws.com:5432/d89303eanmsasg?sslmode=require',
-// };
 
 const pool = new Pool();
 
