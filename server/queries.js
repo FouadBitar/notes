@@ -2,7 +2,14 @@ const Pool = require('pg').Pool
 
 const pool = new Pool();
 
-
+pool
+  .connect()
+  .then(client => {
+    console.log('connected TO IT MAN!')
+    client.release()
+  })
+  .catch(err => console.error('error connecting', err.stack))
+  .then(() => pool.end())
 
 
 
