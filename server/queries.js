@@ -20,7 +20,7 @@ const getNotes = (request, response) => {
         throw error2
       } 
 
-      response.status(200).json({notes: results1.rows, folder_names: results2.rows})
+      response.status(200).json({notes: results1.rows, folder_names: results2.rows, test: "this is a test"})
     })
   })
 }

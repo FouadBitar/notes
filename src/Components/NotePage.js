@@ -16,7 +16,8 @@ function NotePage(props) {
     }
 
     function addNote(){
-        const newNote = {text: '', archived: false};
+        // const newNote = {text: '', archived: false};
+        const newNote = {text: ''};
 
         props.onAddNote(newNote);
     }
@@ -30,16 +31,16 @@ function NotePage(props) {
         props.onRemoveNote(removeNote);      
     }
 
-    function markAsDone(note){
-        let state = props.noteState;
-        let archivedNote = state.notes.find((item) => item.id === note.id);
-        archivedNote = {
-            ...archivedNote,
-            archived: true
-        };
+    // function markAsDone(note){
+    //     let state = props.noteState;
+    //     let archivedNote = state.notes.find((item) => item.id === note.id);
+    //     archivedNote = {
+    //         ...archivedNote,
+    //         archived: true
+    //     };
 
-        props.onUpdateNote(archivedNote);
-    }
+    //     props.onUpdateNote(archivedNote);
+    // }
     
     return(
 
@@ -54,12 +55,12 @@ function NotePage(props) {
                                         id={item.id} 
                                         text={item.text} 
                                         onChange={handleChange} 
-                                        archived={item.archived}
+                                        // archived={item.archived}
                                     />
                                 </div>
                                 <div className='col-2 pe-0 ps-0 h-100'>
                                     <button id={item.id + '-delete'} onClick={() => removeNote(item)} className="btn btn-danger btn-sm m-1 button-done-delete button-small">Delete</button>
-                                    <button id={item.id + '-done'} onClick={() => markAsDone(item)} className="btn btn-success btn-sm m-1 button-done-delete button-small">Done</button>
+                                    {/* <button id={item.id + '-done'} onClick={() => markAsDone(item)} className="btn btn-success btn-sm m-1 button-done-delete button-small">Done</button> */}
                                 </div>
                             </div>
                         )

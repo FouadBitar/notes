@@ -1,7 +1,6 @@
 import '../CSS/App.css';
 import { regexCheckID, sortArray } from './Utils';
 import NotePage from './NotePage';
-import ArchivePage from './ArchivedPage'
 import Modal from './Modal'
 import React from 'react';
 import notesLogo from '../images/notes-logo.png';
@@ -12,7 +11,7 @@ import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 // TODO
 // can make folders on the left side for organization
-// move the notes/archived tabs to the top nav bar
+// move the notes tabs to the top nav bar
 // add the pin option to the left of each note, so that it goes to the top of the page
 // maybe add the option to be able to move around the notes so that they are in a different order
 // use typescript
@@ -24,6 +23,13 @@ import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 // delete will check if all notes are deleted first
 // edit will show the modal again with the text of the folder already and will update its name along with all of the ones in the database.
 
+//remove notestate and keep only notes
+// remove archived
+
+
+// convert to mysql instead
+// run and build application on online server heroku
+
 class App extends React.Component {
 
   constructor(props) {
@@ -33,8 +39,7 @@ class App extends React.Component {
       isModal: false,
       inFolderEditMode: false,
       noteState: {
-        notes: [],
-        archivedNotes: []
+        notes: []
       },
       folders: [],
       currentFolder: null,
@@ -85,10 +90,10 @@ class App extends React.Component {
 
 
     // if the button is archived do nothing
-    if (e.target.getAttribute("archived") === "true"){}
+    // if (e.target.getAttribute("archived") === "true"){}
 
     // if nothing was clicked before and a note is clicked now
-    else if(prevNoteClickedId === '-1' && checkClicked) {
+    if(prevNoteClickedId === '-1' && checkClicked) {
       
       //disable all other buttons
       for(let i=0; i<buttons.length; i++) {
@@ -168,19 +173,24 @@ class App extends React.Component {
 
 
           //separate archived from active
-          let archived = data.notes.filter(item => item.archived === true);
-          let active = data.notes.filter(item => item.archived === false);
+          // let archived = data.notes.filter(item => item.archived === true);
+          // let active = data.notes.filter(item => item.archived === false);
 
-          //sort the lists
-          archived = sortArray(archived);
-          active = sortArray(active);
+          // //sort the lists
+          // archived = sortArray(archived);
+          // active = sortArray(active);
+
+          let notes = sortArray(data.notes);
+
+          console.log(data.test);
 
 
           this.setState({ 
             ...this.state, 
             folders: data.folder_names, 
             currentFolder: (data.folder_names[0] ? data.folder_names[0] : null),
-            noteState: { ...this.state.noteState, notes: active, archivedNotes: archived } 
+            // noteState: { ...this.state.noteState, notes: notes, archivedNotes: archived } 
+            noteState: { ...this.state.noteState, notes: notes } 
           })
     })
   }
@@ -195,15 +205,21 @@ class App extends React.Component {
         .then(response => response.json())
         .then(data => {
 
-          //separate archived from active
-          let archived = data.filter(item => item.archived === true);
-          let active = data.filter(item => item.archived === false);
+          // //separate archived from active
+          // let archived = data.filter(item => item.archived === true);
+          // let active = data.filter(item => item.archived === false);
 
-          //sort the lists
-          archived = sortArray(archived);
-          active = sortArray(active);
+          // //sort the lists
+          // archived = sortArray(archived);
+          // active = sortArray(active);
 
-          this.setState({ ...this.state, noteState: { ...this.state.noteState, notes: active, archivedNotes: archived } })
+          let notes = sortArray(data.notes);
+
+          this.setState({ 
+            ...this.state, 
+            // noteState: { ...this.state.noteState, notes: active, archivedNotes: archived }
+            noteState: { ...this.state.noteState, notes: notes } 
+          })
       });
   }
 
@@ -231,15 +247,21 @@ class App extends React.Component {
         .then(response => response.json())
         .then(data => {
 
-          //separate archived from active
-          let archived = data.filter(item => item.archived === true);
-          let active = data.filter(item => item.archived === false);
+          // //separate archived from active
+          // let archived = data.filter(item => item.archived === true);
+          // let active = data.filter(item => item.archived === false);
 
-          //sort the lists
-          archived = sortArray(archived);
-          active = sortArray(active);
+          // //sort the lists
+          // archived = sortArray(archived);
+          // active = sortArray(active);
 
-          this.setState({ ...this.state, noteState: { ...this.state.noteState, notes: active, archivedNotes: archived } })
+          let notes = sortArray(data.notes);
+
+          this.setState({ 
+            ...this.state, 
+            // noteState: { ...this.state.noteState, notes: active, archivedNotes: archived } 
+            noteState: { ...this.state.noteState, notes: notes } 
+          })
         });
   }
 
@@ -252,15 +274,21 @@ class App extends React.Component {
         .then(response => response.json())
         .then(data => {
 
-          //separate archived from active
-          let archived = data.filter(item => item.archived === true);
-          let active = data.filter(item => item.archived === false);
+          // //separate archived from active
+          // let archived = data.filter(item => item.archived === true);
+          // let active = data.filter(item => item.archived === false);
 
-          //sort the lists
-          archived = sortArray(archived);
-          active = sortArray(active);
+          // //sort the lists
+          // archived = sortArray(archived);
+          // active = sortArray(active);
 
-          this.setState({ ...this.state, noteState: { ...this.state.noteState, notes: active, archivedNotes: archived } })
+          let notes = sortArray(data.notes);
+
+          this.setState({ 
+            ...this.state, 
+            // noteState: { ...this.state.noteState, notes: active, archivedNotes: archived } 
+            noteState: { ...this.state.noteState, notes: notes } 
+          })
         });
   }
 
@@ -281,8 +309,26 @@ class App extends React.Component {
   }
 
   returnPage() {
-    if(this.state.isNotePage){
-      return <NotePage 
+    // if(this.state.isNotePage){
+    //   return <NotePage 
+    //       noteState={this.state.noteState} 
+    //       currentFolder={this.state.currentFolder}
+    //       onStateChange={this.onStateChange}
+    //       onAddNote={this.onAddNote}
+    //       onRemoveNote={this.onRemoveNote}
+    //       onUpdateNote={this.onUpdateNote}
+    //     ></NotePage>
+    // } else {
+    //   return <ArchivePage 
+    //       noteState={this.state.noteState} 
+    //       onStateChange={this.onStateChange}
+    //       onAddNote={this.onAddNote}
+    //       onRemoveNote={this.onRemoveNote}
+    //       onUpdateNote={this.onUpdateNote}
+    //     ></ArchivePage>
+    // }
+
+    return <NotePage 
           noteState={this.state.noteState} 
           currentFolder={this.state.currentFolder}
           onStateChange={this.onStateChange}
@@ -290,15 +336,6 @@ class App extends React.Component {
           onRemoveNote={this.onRemoveNote}
           onUpdateNote={this.onUpdateNote}
         ></NotePage>
-    } else {
-      return <ArchivePage 
-          noteState={this.state.noteState} 
-          onStateChange={this.onStateChange}
-          onAddNote={this.onAddNote}
-          onRemoveNote={this.onRemoveNote}
-          onUpdateNote={this.onUpdateNote}
-        ></ArchivePage>
-    }
   }
 
 
@@ -317,7 +354,8 @@ class App extends React.Component {
   }
 
   onFolderDelete() {
-    
+    // check if there are any notes -> if so display error message
+    let notes = this.state.noteState.notes
 
   }
 
@@ -353,7 +391,7 @@ class App extends React.Component {
                 <img className="logo" src={notesLogo} alt=""></img>
                 <h3 id="logo-title">Notes</h3>
                 <button className="btn btn-outline-dark h-100 ms-3 rounded-0 border-0" onClick={() => this.setState({ isNotePage: true })}>Notes</button>
-                <button className="btn btn-outline-dark h-100 ms-3 rounded-0 border-0" onClick={() => this.setState({ isNotePage: false })}>Archived</button>
+                {/* <button className="btn btn-outline-dark h-100 ms-3 rounded-0 border-0" onClick={() => this.setState({ isNotePage: false })}>Archived</button> */}
               </div>
             </div>
 
