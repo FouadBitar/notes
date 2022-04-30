@@ -14,18 +14,18 @@ function Note(props){
   });
 
 
-  let onChangeFunc;
-  if(props.archived) {
-    onChangeFunc = () => {};
-  } else {
-    onChangeFunc = handleChange;
-  }
+  let onChangeFunc = handleChange;
+  // if(props.archived) {
+  //   onChangeFunc = () => {};
+  // } else {
+  //   onChangeFunc = handleChange;
+  // }
 
   return(
     <textarea 
       id={props.id+"text-area"}
       value={props.text} 
-      archived={props.archived ? "true" : "false"}
+      // archived={props.archived ? "true" : "false"}
       onChange={onChangeFunc} 
       type="text" 
       className="w-100" 
