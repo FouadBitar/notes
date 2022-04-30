@@ -160,6 +160,7 @@ class App extends React.Component {
   }
 
   getData() {
+    console.log('get data is called');
     fetch('http://localhost:3000/', {
          method: 'get',
          headers: {'Content-Type': 'application/json'},
