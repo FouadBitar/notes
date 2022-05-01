@@ -38,6 +38,14 @@ app.put('/update', db.updateNote)
 
 app.delete('/delete/:id', db.deleteNote)
 
+app.get('/test', (req, res) => {
+  res.send("hello this is the test");
+});
+
+app.post('/test', (req, res) => {
+  res.send("still got the put test");
+})
+
   
 app.listen((process.env.PORT || port), () => {
     console.log(`App running on port ${port}.`)
