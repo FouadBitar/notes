@@ -27,8 +27,11 @@ import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 // remove archived
 
 
-// convert to mysql instead
+// clean up application files
+// add features
 // run and build application on online server heroku
+// change to typescript
+// add authorization
 
 class App extends React.Component {
 
@@ -161,7 +164,7 @@ class App extends React.Component {
 
   getData() {
     console.log('get data is called');
-    fetch('http://localhost:3000/', {
+    fetch('/sup', {
          method: 'get',
          headers: {'Content-Type': 'application/json'},
        }).then(response => response.json()).then(data => {
@@ -183,7 +186,7 @@ class App extends React.Component {
 
           let notes = sortArray(data.notes);
 
-          console.log(data.test);
+          console.log(data.notes);
 
 
           this.setState({ 
@@ -202,7 +205,7 @@ class App extends React.Component {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({note: row, folder: this.state.currentFolder})
     };
-    fetch('http://localhost:3000/add', requestOptions)
+    fetch('/add', requestOptions)
         .then(response => response.json())
         .then(data => {
 
@@ -213,8 +216,9 @@ class App extends React.Component {
           // //sort the lists
           // archived = sortArray(archived);
           // active = sortArray(active);
+          console.log(data);
 
-          let notes = sortArray(data.notes);
+          let notes = sortArray(data);
 
           this.setState({ 
             ...this.state, 
@@ -230,7 +234,7 @@ class App extends React.Component {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(row)
     };
-    fetch('http://localhost:3000/add/foldername', requestOptions)
+    fetch('/add/foldername', requestOptions)
         .then(response => response.json())
         .then(data => {
           //update state with new list of folder names
@@ -244,7 +248,7 @@ class App extends React.Component {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(row)
     };
-    fetch('http://localhost:3000/update', requestOptions)
+    fetch('/update', requestOptions)
         .then(response => response.json())
         .then(data => {
 
@@ -256,7 +260,7 @@ class App extends React.Component {
           // archived = sortArray(archived);
           // active = sortArray(active);
 
-          let notes = sortArray(data.notes);
+          let notes = sortArray(data);
 
           this.setState({ 
             ...this.state, 
@@ -271,7 +275,7 @@ class App extends React.Component {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     };
-    fetch('http://localhost:3000/delete/' + row.id, requestOptions)
+    fetch('/delete' + row.id, requestOptions)
         .then(response => response.json())
         .then(data => {
 
@@ -283,7 +287,7 @@ class App extends React.Component {
           // archived = sortArray(archived);
           // active = sortArray(active);
 
-          let notes = sortArray(data.notes);
+          let notes = sortArray(data);
 
           this.setState({ 
             ...this.state, 

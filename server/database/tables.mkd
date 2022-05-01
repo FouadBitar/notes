@@ -1,14 +1,14 @@
-<!-- created the table -->
-create table file_names (
+<!-- created the folder table -->
+create table folder_names (
     name varchar(50) unique not null
 );
 
-<!-- inserted test -->
-insert into file_names(name) values ('test-name');
+<!-- creates the notes table -->
+create table notes (
+    id SERIAL PRIMARY KEY,
+    text varchar(120),
+    last_updated timestamp without time zone,
+    folder varchar(50)
+);
 
-<!-- renamed to folder_name -->
-alter table file_names rename to folder_names;
-
-
-<!-- alter notes table to include folder column -->
-alter table notes add column folder varchar(50);
+sumsum
