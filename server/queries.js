@@ -65,8 +65,8 @@ const updateNote = async (request, response) => {
     const note = request.body;
     
     try {
-      await pool.query("UPDATE notes SET text=$1, archived=$2, last_updated=current_timestamp WHERE id=$3", 
-        [note.text, note.archived, note.id])
+      await pool.query("UPDATE notes SET text=$1, last_updated=current_timestamp WHERE id=$2", 
+        [note.text, note.id])
       const getallnotes = await pool.query('SELECT * FROM notes');
       response.status(200).json(getallnotes.rows)
 

@@ -5,7 +5,7 @@ create table folder_names (
 
 <!-- creates the notes table -->
 create table notes (
-    id INT PRIMARY KEY UNIQUE,
+    id INT SERIAL,
     text varchar(120),
     last_updated timestamp without time zone,
     folder varchar(50)
