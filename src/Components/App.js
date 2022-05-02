@@ -28,10 +28,12 @@ import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 
 // clean up application files
+// make restful routes
 // add features
 // run and build application on online server heroku
 // change to typescript
 // add authorization
+
 
 class App extends React.Component {
 
