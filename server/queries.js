@@ -1,6 +1,8 @@
 const Pool = require("pg").Pool;
 const pool = new Pool();
 
+
+
 const getNotes = (request, response) => {
   pool.query("SELECT * FROM notes", (error1, results1) => {
     if (error1) {
