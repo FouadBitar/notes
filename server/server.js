@@ -1,52 +1,43 @@
-require('dotenv').config()
-console.log(typeof process.env.APP_USER)
+require("dotenv").config();
+console.log(typeof process.env.APP_USER);
 
-const express = require('express')
-const bodyParser = require('body-parser')
-var cors = require('cors')
-const path = require('path')
-const app = express()
-const port = 3000
+const express = require("express");
+const bodyParser = require("body-parser");
+var cors = require("cors");
+const app = express();
+const port = 3000;
 
+app.use(cors());
 
+const db = require("./queries");
 
-
-app.use(cors())
-
-const db = require('./queries')
-
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
     extended: true,
   })
-)
+);
 
-app.use(express.static(path.join(__dirname, 'build')))
+// ROUTES
+app.get("/sup", db.getNotes);
 
-app.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'))
-})
+app.post("/add", db.addNote);
 
-app.get('/sup', db.getNotes)
+app.post("/add/foldername", db.addFolderName);
 
-app.post('/add', db.addNote)
+app.put("/update", db.updateNote);
 
-app.post('/add/foldername', db.addFolderName)
+app.delete("/delete/:id", db.deleteNote);
 
-app.put('/update', db.updateNote)
-
-app.delete('/delete/:id', db.deleteNote)
-
-app.get('/test', (req, res) => {
+// TEST ROUTES
+app.get("/test", (req, res) => {
   res.send("hello this is the test");
 });
 
-app.post('/test', (req, res) => {
+app.post("/test", (req, res) => {
   res.send("still got the put test");
-})
+});
 
-  
-app.listen((process.env.PORT || port), () => {
-    console.log(`App running on port ${port}.`)
-})
+app.listen(process.env.PORT || port, () => {
+  console.log(`App running on port ${port}.`);
+});
