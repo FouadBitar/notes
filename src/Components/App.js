@@ -3,8 +3,9 @@ import "../CSS/App.css";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 // Components and functions
-import { regexCheckID, sortArray } from "./Utils";
+import { regexCheckIdIsNote, sortArray } from "./Utils";
 import NotePage from "./NotePage";
+import FolderNav from "./FolderNav";
 import Modal from "./Modal";
 
 // Frameworks
@@ -12,12 +13,10 @@ import React from "react";
 
 // Images
 import notesLogo from "../images/notes-logo.png";
-import folderXLogo from "../../node_modules/bootstrap-icons/icons/folder-x.svg";
-import penLogo from "../../node_modules/bootstrap-icons/icons/pen.svg";
 
 // TODO
 // clean up application files - can you make anything modular or simplify your app file
-// conver the code to typescript
+// convert the code to typescript
 // make your routes restful
 // add the pin option so note goes to top of page
 // add option to move around the notes
@@ -37,7 +36,6 @@ class App extends React.Component {
       noteClickedId: "-1",
     };
 
-    this.returnPage = this.returnPage.bind(this);
     this.onNoteStateChange = this.onNoteStateChange.bind(this);
     this.onAddNote = this.onAddNote.bind(this);
     this.onRemoveNote = this.onRemoveNote.bind(this);
@@ -48,8 +46,10 @@ class App extends React.Component {
     this.handleClickEvent = this.handleClickEvent.bind(this);
     this.onAddFolder = this.onAddFolder.bind(this);
     this.onCancel = this.onCancel.bind(this);
-    this.diplayEditMode = this.diplayEditMode.bind(this);
     this.onFolderDelete = this.onFolderDelete.bind(this);
+    this.onAddFolderClick = this.onAddFolderClick.bind(this);
+    this.onEditFolderClick = this.onEditFolderClick.bind(this);
+    this.onFolderSelected = this.onFolderSelected.bind(this);
   }
 
   componentDidMount() {
@@ -65,9 +65,12 @@ class App extends React.Component {
     let prevNoteClickedId = this.state.noteClickedId;
     let noteClickedId = e.target.id;
 
-    // check if items clicked ID is text-area
-    const checkPrevClicked = regexCheckID(prevNoteClickedId);
-    const checkClicked = regexCheckID(noteClickedId);
+    console.log(e);
+    console.log(e.target);
+
+    // check if item clicked ID is text-area
+    const checkPrevClicked = regexCheckIdIsNote(prevNoteClickedId);
+    const checkClicked = regexCheckIdIsNote(noteClickedId);
 
     // all buttons and inputs of page
     var buttons = document.getElementsByTagName("button");
@@ -163,8 +166,6 @@ class App extends React.Component {
   }
 
   getData() {
-    console.log("hello");
-    console.log("get data is called");
     fetch("/sup", {
       method: "get",
       headers: { "Content-Type": "application/json" },
@@ -288,17 +289,25 @@ class App extends React.Component {
     this.updateRowInDatabase(updateNote);
   }
 
-  returnPage() {
-    return (
-      <NotePage
-        notes={this.state.notes}
-        currentFolder={this.state.currentFolder}
-        onNoteStateChange={this.onNoteStateChange}
-        onAddNote={this.onAddNote}
-        onRemoveNote={this.onRemoveNote}
-        onUpdateNote={this.onUpdateNote}
-      ></NotePage>
-    );
+  onAddFolderClick() {
+    this.setState({
+      ...this.state,
+      isModal: true,
+    });
+  }
+
+  onEditFolderClick() {
+    this.setState({
+      ...this.state,
+      inFolderEditMode: !this.state.inFolderEditMode,
+    });
+  }
+
+  onFolderSelected(item) {
+    this.setState({
+      ...this.state,
+      currentFolder: item,
+    });
   }
 
   onAddFolder(value) {
@@ -333,25 +342,6 @@ class App extends React.Component {
     });
   }
 
-  diplayEditMode() {
-    if (this.state.inFolderEditMode) {
-      return (
-        <div>
-          <button
-            className="btn btn-sm btn-outline-dark w-20"
-            onClick={this.onFolderDelete}
-          >
-            <img src={folderXLogo} alt="" />
-          </button>
-          <button className="btn btn-sm btn-outline-dark w-20">
-            <img src={penLogo} alt="" />
-          </button>
-        </div>
-      );
-    }
-    return null;
-  }
-
   render() {
     return (
       <div className="container-fluid app-container">
@@ -382,69 +372,30 @@ class App extends React.Component {
           }}
         >
           {/* left nav bar */}
-          <div className="col-2 pt-3 ps-0 pe-0 nav-container h-100">
-            <div className="row pb-3 w-100 d-flex justify-content-center align-items-center border-bottom border-dark">
-              <div className="ps-1 pe-1 mb-4 w-90 d-flex justify-content-center">
-                <button
-                  className="m-1 btn btn-sm btn-outline-dark"
-                  onClick={() =>
-                    this.setState({
-                      ...this.state,
-                      isModal: true,
-                    })
-                  }
-                >
-                  Add Folder
-                </button>
-                <button
-                  onClick={() =>
-                    this.setState({
-                      ...this.state,
-                      inFolderEditMode: !this.state.inFolderEditMode,
-                    })
-                  }
-                  className="m-1 btn btn-sm btn-outline-dark w-100"
-                >
-                  Edit
-                </button>
-              </div>
-
-              {/* folders */}
-              {this.state.folders.map((item, i) => {
-                return (
-                  <div key={item.id} className="row mb-2">
-                    <button
-                      className="btn btn-outline-dark btn-sm w-60"
-                      onClick={() =>
-                        this.setState({
-                          ...this.state,
-                          currentFolder: item,
-                        })
-                      }
-                      style={
-                        this.state.currentFolder.name === item.name
-                          ? {
-                              color: "white",
-                              backgroundColor: "#212529",
-                            }
-                          : {}
-                      }
-                    >
-                      {item.name}
-                    </button>
-                    {this.diplayEditMode()}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <FolderNav
+            folders={this.state.folders}
+            inFolderEditMode={this.state.inFolderEditMode}
+            currentFolder={this.state.currentFolder}
+            onAddFolderClick={this.onAddFolderClick}
+            onEditFolderClick={this.onEditFolderClick}
+            onFolderSelected={this.onFolderSelected}
+            onFolderDelete={this.onFolderDelete}
+          ></FolderNav>
 
           {/* display page */}
-          <div className="col pt-3 display-page">{this.returnPage()}</div>
+          <div className="col pt-3 display-page">
+            <NotePage
+              notes={this.state.notes}
+              currentFolder={this.state.currentFolder}
+              onNoteStateChange={this.onNoteStateChange}
+              onAddNote={this.onAddNote}
+              onRemoveNote={this.onRemoveNote}
+              onUpdateNote={this.onUpdateNote}
+            ></NotePage>
+          </div>
         </div>
 
         {/* Modal */}
-
         <Modal
           show={this.state.isModal}
           errorMessage={this.state.errorMessage}

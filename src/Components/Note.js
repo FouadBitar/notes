@@ -7,16 +7,16 @@ function Note(props) {
   }
 
   useEffect(() => {
-    document.getElementById(props.id + "text-area").style.height = "auto";
-    document.getElementById(props.id + "text-area").style.height =
-      document.getElementById(props.id + "text-area").scrollHeight + "px";
+    document.getElementById(props.id + "-note").style.height = "auto";
+    document.getElementById(props.id + "-note").style.height =
+      document.getElementById(props.id + "-note").scrollHeight + "px";
   });
 
   let onChangeFunc = handleChange;
 
   return (
     <textarea
-      id={props.id + "text-area"}
+      id={props.id + "-note"}
       value={props.text}
       onChange={onChangeFunc}
       type="text"
