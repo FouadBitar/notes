@@ -1,10 +1,5 @@
 const Pool = require('pg').Pool
-
-const pool = new Pool({
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+const pool = new Pool();
 
 
 
