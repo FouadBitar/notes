@@ -16,9 +16,6 @@ import Modal from "./Modal";
 import React from "react";
 
 // TODO
-// clean up application files - can you make anything modular or simplify your app file
-// add const final STRING ID name of important components like the note text-area which is "-note"
-// write generic function that updates the state object by parsing the JSON object given to it as input
 // display clean error when unable to connect to the database for example
 // update the read me file with what the app is, how they can run it (i.e. npm i, npm run build for prod, etc. with .env)
 // convert the code to typescript
@@ -30,6 +27,7 @@ import React from "react";
 class App extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
       isNotePage: true,
       isModal: false,
@@ -39,6 +37,7 @@ class App extends React.Component {
       currentFolder: null,
       errorMessage: "",
       noteClickedId: "-1",
+      dbConnection: true,
     };
 
     this.onAddNote = this.onAddNote.bind(this);
@@ -66,16 +65,26 @@ class App extends React.Component {
     let prevNoteClickedId = this.state.noteClickedId;
     let noteClickedId = e.target.id;
 
-    console.log(e);
-    console.log(e.target);
-
-    // check if item clicked ID is text-area
+    // check if item and previously clicked item are notes
     const checkPrevClicked = regexCheckIdIsNote(prevNoteClickedId);
     const checkClicked = regexCheckIdIsNote(noteClickedId);
 
-    // all buttons and inputs of page
+    // get all buttons of page
     var buttons = document.getElementsByTagName("button");
-    var textareas = document.getElementsByTagName("textarea");
+
+    // get all notes of the page
+    let noteIds = [];
+    this.state.notes.forEach((note) => {
+      if (note.folder === this.state.currentFolder.name) {
+        noteIds.push(note.id + NOTE_ID);
+      }
+    });
+    let textareas = [];
+    noteIds.forEach((id) => {
+      textareas.push(document.getElementById(id));
+    });
+
+    // var textareas2 = document.getElementsByTagName("textarea");
 
     var prevNoteID = prevNoteClickedId.replace(/[^0-9]/g, "");
     var clickedID = noteClickedId.replace(/[^0-9]/g, "");
@@ -166,26 +175,20 @@ class App extends React.Component {
     })
       .then((response) => response.json())
       .then((data) => {
-        //convert all dates to readable format
-        // data.forEach((item,i) => data[i] = { ...item, last_updated: new Date(item.last_updated.replace(' ', 'T')) })
-        data.notes.forEach(
-          (item, i) =>
-            (data[i] = {
-              ...item,
-              last_updated: new Date(item.last_updated),
-            })
-        );
+        // check if error returned
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let notes = sortArray(data.notes);
 
-        let notes = sortArray(data.notes);
-
-        // console.log(data.notes);
-
-        this.setState({
-          ...this.state,
-          folders: data.folder_names,
-          currentFolder: data.folder_names[0] ? data.folder_names[0] : null,
-          notes: notes,
-        });
+          this.setState({
+            ...this.state,
+            folders: data.folder_names,
+            currentFolder: data.folder_names[0] ? data.folder_names[0] : null,
+            notes: notes,
+          });
+        }
       });
   }
 
@@ -201,14 +204,17 @@ class App extends React.Component {
     fetch("/add", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let notes = sortArray(data);
 
-        let notes = sortArray(data);
-
-        this.setState({
-          ...this.state,
-          notes: notes,
-        });
+          this.setState({
+            ...this.state,
+            notes: notes,
+          });
+        }
       });
   }
 
@@ -221,11 +227,16 @@ class App extends React.Component {
     fetch("/add/foldername", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        //update state with new list of folder names
-        this.setState({
-          ...this.state,
-          folders: data,
-        });
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          //update state with new list of folder names
+          this.setState({
+            ...this.state,
+            folders: data,
+          });
+        }
       });
   }
 
@@ -238,12 +249,17 @@ class App extends React.Component {
     fetch("/update", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        let notes = sortArray(data);
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let notes = sortArray(data);
 
-        this.setState({
-          ...this.state,
-          notes: notes,
-        });
+          this.setState({
+            ...this.state,
+            notes: notes,
+          });
+        }
       });
   }
 
@@ -255,12 +271,17 @@ class App extends React.Component {
     fetch("/delete" + row.id, requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        let notes = sortArray(data);
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let notes = sortArray(data);
 
-        this.setState({
-          ...this.state,
-          notes: notes,
-        });
+          this.setState({
+            ...this.state,
+            notes: notes,
+          });
+        }
       });
   }
 
@@ -300,7 +321,6 @@ class App extends React.Component {
 
   updateState(obj) {
     // this.setState({ isNotePage: true });
-    console.log("update state called");
 
     let newState = { ...this.state };
     for (var key in obj) {
@@ -312,9 +332,16 @@ class App extends React.Component {
   }
 
   render() {
+    console.log(this.state);
+    if (!this.state.dbConnection) {
+      return (
+        <div>
+          <h3>Could not connect to the database</h3>
+        </div>
+      );
+    }
     return (
       <div className="container-fluid app">
-        {console.log(this.state)}
         {/* top nav bar */}
         <Nav updateState={this.updateState}></Nav>
 

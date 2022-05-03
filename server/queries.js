@@ -1,7 +1,14 @@
 const Pool = require("pg").Pool;
 const pool = new Pool();
 
-
+const checkConnection = (request, response, next) => {
+  pool.query("SELECT * from notes", (err, res) => {
+    if (err) {
+      console.log("ERROR:   " + err);
+      response.send({ error: "error connecting to DB" });
+    } else next();
+  });
+};
 
 const getNotes = (request, response) => {
   pool.query("SELECT * FROM notes", (error1, results1) => {
@@ -78,4 +85,11 @@ const deleteNote = async (request, response) => {
   }
 };
 
-module.exports = { getNotes, addNote, addFolderName, updateNote, deleteNote };
+module.exports = {
+  checkConnection,
+  getNotes,
+  addNote,
+  addFolderName,
+  updateNote,
+  deleteNote,
+};

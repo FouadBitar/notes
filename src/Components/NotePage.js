@@ -11,7 +11,6 @@ function NotePage(props) {
     notes[noteIndex].text = newValue;
 
     props.updateState({ notes: notes });
-    // props.onNoteStateChange(notes);
   }
 
   function addNote() {

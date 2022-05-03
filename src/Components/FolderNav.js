@@ -34,7 +34,7 @@ function FolderNav(props) {
             className="m-1 btn btn-sm btn-outline-dark"
             onClick={() => props.updateState({ isModal: true })}
           >
-            Add Folder
+            Add
           </button>
           <button
             className="m-1 btn btn-sm btn-outline-dark w-100"
