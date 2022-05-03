@@ -2,6 +2,9 @@
 import "../CSS/App.css";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
+// Constants
+import { NOTE_ID, DELETE_ID } from "../Constants/index";
+
 // Components and functions
 import { regexCheckIdIsNote, sortArray } from "./Utils";
 import NotePage from "./NotePage";
@@ -13,9 +16,8 @@ import Modal from "./Modal";
 import React from "react";
 
 // TODO
-// clean up application files - can you make anything modular or simplify your app file
-// write generic function that updates the state object by parsing the JSON object given to it as input
 // display clean error when unable to connect to the database for example
+// update the read me file with what the app is, how they can run it (i.e. npm i, npm run build for prod, etc. with .env)
 // convert the code to typescript
 // make your routes restful
 // add the pin option so note goes to top of page
@@ -25,6 +27,7 @@ import React from "react";
 class App extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
       isNotePage: true,
       isModal: false,
@@ -34,9 +37,9 @@ class App extends React.Component {
       currentFolder: null,
       errorMessage: "",
       noteClickedId: "-1",
+      dbConnection: true,
     };
 
-    this.onNoteStateChange = this.onNoteStateChange.bind(this);
     this.onAddNote = this.onAddNote.bind(this);
     this.onRemoveNote = this.onRemoveNote.bind(this);
     this.onUpdateNote = this.onUpdateNote.bind(this);
@@ -45,11 +48,7 @@ class App extends React.Component {
     this.addFolderNameToDatabase = this.addFolderNameToDatabase.bind(this);
     this.handleClickEvent = this.handleClickEvent.bind(this);
     this.onAddFolder = this.onAddFolder.bind(this);
-    this.onCancel = this.onCancel.bind(this);
     this.onFolderDelete = this.onFolderDelete.bind(this);
-    this.onAddFolderClick = this.onAddFolderClick.bind(this);
-    this.onEditFolderClick = this.onEditFolderClick.bind(this);
-    this.onFolderSelected = this.onFolderSelected.bind(this);
     this.updateState = this.updateState.bind(this);
   }
 
@@ -66,16 +65,26 @@ class App extends React.Component {
     let prevNoteClickedId = this.state.noteClickedId;
     let noteClickedId = e.target.id;
 
-    console.log(e);
-    console.log(e.target);
-
-    // check if item clicked ID is text-area
+    // check if item and previously clicked item are notes
     const checkPrevClicked = regexCheckIdIsNote(prevNoteClickedId);
     const checkClicked = regexCheckIdIsNote(noteClickedId);
 
-    // all buttons and inputs of page
+    // get all buttons of page
     var buttons = document.getElementsByTagName("button");
-    var textareas = document.getElementsByTagName("textarea");
+
+    // get all notes of the page
+    let noteIds = [];
+    this.state.notes.forEach((note) => {
+      if (note.folder === this.state.currentFolder.name) {
+        noteIds.push(note.id + NOTE_ID);
+      }
+    });
+    let textareas = [];
+    noteIds.forEach((id) => {
+      textareas.push(document.getElementById(id));
+    });
+
+    // var textareas2 = document.getElementsByTagName("textarea");
 
     var prevNoteID = prevNoteClickedId.replace(/[^0-9]/g, "");
     var clickedID = noteClickedId.replace(/[^0-9]/g, "");
@@ -86,10 +95,7 @@ class App extends React.Component {
       for (let i = 0; i < buttons.length; i++) {
         var buttonID = buttons[i].getAttribute("id");
 
-        if (
-          buttonID === clickedID + "-done" ||
-          buttonID === clickedID + "-delete"
-        ) {
+        if (buttonID === clickedID + DELETE_ID) {
           buttons[i].removeAttribute("disabled");
         } else {
           buttons[i].setAttribute("disabled", "true");
@@ -99,7 +105,7 @@ class App extends React.Component {
       for (let i = 0; i < textareas.length; i++) {
         var textareaID = textareas[i].getAttribute("id");
 
-        if (textareaID === clickedID + "text-area") {
+        if (textareaID === clickedID + NOTE_ID) {
           textareas[i].removeAttribute("disabled");
         } else {
           textareas[i].setAttribute("disabled", "true");
@@ -117,9 +123,8 @@ class App extends React.Component {
     // remove the disables and save the note
     else if (
       checkPrevClicked &&
-      noteClickedId !== prevNoteID + "text-area" &&
-      noteClickedId !== prevNoteID + "-delete" &&
-      noteClickedId !== prevNoteID + "-done"
+      noteClickedId !== prevNoteID + NOTE_ID &&
+      noteClickedId !== prevNoteID + DELETE_ID
     ) {
       // enable all buttons and text-areas
       for (let i = 0; i < buttons.length; i++) {
@@ -140,13 +145,9 @@ class App extends React.Component {
         noteClickedId: "-1",
       });
     }
-    //if currently in select note, and we click on either done or delete, just enable all buttons and remove previous clicked,
+    //if currently in select note, and we click on delete, just enable all buttons and remove previous clicked,
     //the other event handler will handle the rest
-    else if (
-      checkPrevClicked &&
-      (noteClickedId === prevNoteID + "-delete" ||
-        noteClickedId === prevNoteID + "-done")
-    ) {
+    else if (checkPrevClicked && noteClickedId === prevNoteID + DELETE_ID) {
       // enable all buttons and text-areas
       for (let i = 0; i < buttons.length; i++) {
         buttons[i].removeAttribute("disabled");
@@ -166,6 +167,7 @@ class App extends React.Component {
     }
   }
 
+  // ROUTES
   getData() {
     fetch("/sup", {
       method: "get",
@@ -173,26 +175,20 @@ class App extends React.Component {
     })
       .then((response) => response.json())
       .then((data) => {
-        //convert all dates to readable format
-        // data.forEach((item,i) => data[i] = { ...item, last_updated: new Date(item.last_updated.replace(' ', 'T')) })
-        data.notes.forEach(
-          (item, i) =>
-            (data[i] = {
-              ...item,
-              last_updated: new Date(item.last_updated),
-            })
-        );
+        // check if error returned
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let notes = sortArray(data.notes);
 
-        let notes = sortArray(data.notes);
-
-        console.log(data.notes);
-
-        this.setState({
-          ...this.state,
-          folders: data.folder_names,
-          currentFolder: data.folder_names[0] ? data.folder_names[0] : null,
-          notes: notes,
-        });
+          this.setState({
+            ...this.state,
+            folders: data.folder_names,
+            currentFolder: data.folder_names[0] ? data.folder_names[0] : null,
+            notes: notes,
+          });
+        }
       });
   }
 
@@ -208,14 +204,17 @@ class App extends React.Component {
     fetch("/add", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let notes = sortArray(data);
 
-        let notes = sortArray(data);
-
-        this.setState({
-          ...this.state,
-          notes: notes,
-        });
+          this.setState({
+            ...this.state,
+            notes: notes,
+          });
+        }
       });
   }
 
@@ -228,11 +227,16 @@ class App extends React.Component {
     fetch("/add/foldername", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        //update state with new list of folder names
-        this.setState({
-          ...this.state,
-          folders: data,
-        });
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          //update state with new list of folder names
+          this.setState({
+            ...this.state,
+            folders: data,
+          });
+        }
       });
   }
 
@@ -245,12 +249,17 @@ class App extends React.Component {
     fetch("/update", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        let notes = sortArray(data);
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let notes = sortArray(data);
 
-        this.setState({
-          ...this.state,
-          notes: notes,
-        });
+          this.setState({
+            ...this.state,
+            notes: notes,
+          });
+        }
       });
   }
 
@@ -262,22 +271,18 @@ class App extends React.Component {
     fetch("/delete" + row.id, requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        let notes = sortArray(data);
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let notes = sortArray(data);
 
-        this.setState({
-          ...this.state,
-          notes: notes,
-        });
+          this.setState({
+            ...this.state,
+            notes: notes,
+          });
+        }
       });
-  }
-
-  onNoteStateChange(notes) {
-    if (notes !== null) {
-      this.setState({
-        ...this.state,
-        notes: notes,
-      });
-    }
   }
 
   onAddNote(newNote) {
@@ -288,27 +293,6 @@ class App extends React.Component {
   }
   onUpdateNote(updateNote) {
     this.updateRowInDatabase(updateNote);
-  }
-
-  onAddFolderClick() {
-    this.setState({
-      ...this.state,
-      isModal: true,
-    });
-  }
-
-  onEditFolderClick() {
-    this.setState({
-      ...this.state,
-      inFolderEditMode: !this.state.inFolderEditMode,
-    });
-  }
-
-  onFolderSelected(item) {
-    this.setState({
-      ...this.state,
-      currentFolder: item,
-    });
   }
 
   onAddFolder(value) {
@@ -335,24 +319,27 @@ class App extends React.Component {
     let notes = this.state.notes;
   }
 
-  onCancel() {
-    this.setState({
-      ...this.state,
-      isModal: false,
-      errorMessage: "",
-    });
-  }
-
   updateState(obj) {
-    this.setState({ isNotePage: true });
-    // for (var key in obj) {
-    //   if (obj.hasOwnProperty(key)) {
-    //     console.log(key + " -> " + obj[key]);
-    //   }
-    // }
+    // this.setState({ isNotePage: true });
+
+    let newState = { ...this.state };
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        newState[key] = obj[key];
+      }
+    }
+    this.setState(newState);
   }
 
   render() {
+    console.log(this.state);
+    if (!this.state.dbConnection) {
+      return (
+        <div>
+          <h3>Could not connect to the database</h3>
+        </div>
+      );
+    }
     return (
       <div className="container-fluid app">
         {/* top nav bar */}
@@ -365,9 +352,7 @@ class App extends React.Component {
             folders={this.state.folders}
             inFolderEditMode={this.state.inFolderEditMode}
             currentFolder={this.state.currentFolder}
-            onAddFolderClick={this.onAddFolderClick}
-            onEditFolderClick={this.onEditFolderClick}
-            onFolderSelected={this.onFolderSelected}
+            updateState={this.updateState}
             onFolderDelete={this.onFolderDelete}
           ></FolderNav>
 
@@ -376,7 +361,7 @@ class App extends React.Component {
             <NotePage
               notes={this.state.notes}
               currentFolder={this.state.currentFolder}
-              onNoteStateChange={this.onNoteStateChange}
+              updateState={this.updateState}
               onAddNote={this.onAddNote}
               onRemoveNote={this.onRemoveNote}
               onUpdateNote={this.onUpdateNote}
@@ -389,7 +374,7 @@ class App extends React.Component {
           show={this.state.isModal}
           errorMessage={this.state.errorMessage}
           onClose={this.onAddFolder}
-          onCancel={this.onCancel}
+          updateState={this.updateState}
         ></Modal>
       </div>
     );

@@ -1,7 +1,10 @@
+import { NOTE_ID } from "../Constants/index";
 // function takes in the ID string to be checked and
 // matches it against a standard id of a Note object text-area assumed to be *-note
 export function regexCheckIdIsNote(id) {
-  const regex = new RegExp(/^\d+-note$/);
+  let exp = "^\\d+" + NOTE_ID + "$";
+  const regex = new RegExp(exp);
+  // const regex = new RegExp(/^\d+-note$/);
   const check = regex.test(id);
 
   return check;

@@ -19,15 +19,15 @@ app.use(
 );
 
 // ROUTES
-app.get("/sup", db.getNotes);
+app.get("/sup", db.checkConnection, db.getNotes);
 
-app.post("/add", db.addNote);
+app.post("/add", db.checkConnection, db.addNote);
 
-app.post("/add/foldername", db.addFolderName);
+app.post("/add/foldername", db.checkConnection, db.addFolderName);
 
-app.put("/update", db.updateNote);
+app.put("/update", db.checkConnection, db.updateNote);
 
-app.delete("/delete/:id", db.deleteNote);
+app.delete("/delete/:id", db.checkConnection, db.deleteNote);
 
 // TEST ROUTES
 app.get("/test", (req, res) => {
