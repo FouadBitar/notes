@@ -4,6 +4,8 @@ import "../CSS/App.css";
 import React from "react";
 
 function FolderNav(props) {
+  // if edit button is clicked and folder section is in edit mode
+  // display the button options for each folder to be edited or deleted
   function displayEditMode() {
     if (props.inFolderEditMode) {
       return (
@@ -22,9 +24,11 @@ function FolderNav(props) {
     }
     return null;
   }
+
   return (
-    <div className="col-2 pt-3 ps-0 pe-0 nav-container h-100">
+    <div className="col-2 pt-3 ps-0 pe-0 folder-nav-container h-100">
       <div className="row pb-3 w-100 d-flex justify-content-center align-items-center border-bottom border-dark">
+        {/* add folder and edit folder buttons */}
         <div className="ps-1 pe-1 mb-4 w-90 d-flex justify-content-center">
           <button
             className="m-1 btn btn-sm btn-outline-dark"
@@ -40,7 +44,7 @@ function FolderNav(props) {
           </button>
         </div>
 
-        {/* folders */}
+        {/* maps over folders received from app and displays list of folders */}
         {props.folders.map((item, i) => {
           return (
             <div key={item.id} className="row mb-2">

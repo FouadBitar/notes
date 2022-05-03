@@ -6,16 +6,16 @@ import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import { regexCheckIdIsNote, sortArray } from "./Utils";
 import NotePage from "./NotePage";
 import FolderNav from "./FolderNav";
+import Nav from "./Nav";
 import Modal from "./Modal";
 
 // Frameworks
 import React from "react";
 
-// Images
-import notesLogo from "../images/notes-logo.png";
-
 // TODO
 // clean up application files - can you make anything modular or simplify your app file
+// write generic function that updates the state object by parsing the JSON object given to it as input
+// display clean error when unable to connect to the database for example
 // convert the code to typescript
 // make your routes restful
 // add the pin option so note goes to top of page
@@ -50,6 +50,7 @@ class App extends React.Component {
     this.onAddFolderClick = this.onAddFolderClick.bind(this);
     this.onEditFolderClick = this.onEditFolderClick.bind(this);
     this.onFolderSelected = this.onFolderSelected.bind(this);
+    this.updateState = this.updateState.bind(this);
   }
 
   componentDidMount() {
@@ -342,36 +343,24 @@ class App extends React.Component {
     });
   }
 
+  updateState(obj) {
+    this.setState({ isNotePage: true });
+    // for (var key in obj) {
+    //   if (obj.hasOwnProperty(key)) {
+    //     console.log(key + " -> " + obj[key]);
+    //   }
+    // }
+  }
+
   render() {
     return (
-      <div className="container-fluid app-container">
-        {/* logo bar */}
-        <div className="row border border-dark">
-          <div className="logo-container">
-            <img className="logo" src={notesLogo} alt=""></img>
-            <h3 id="logo-title">Notes</h3>
-            <button
-              className="btn btn-outline-dark h-100 ms-3 rounded-0 border-0"
-              onClick={() =>
-                this.setState({
-                  isNotePage: true,
-                })
-              }
-            >
-              Notes
-            </button>
-          </div>
-        </div>
+      <div className="container-fluid app">
+        {/* top nav bar */}
+        <Nav updateState={this.updateState}></Nav>
 
         {/* main row */}
-        <div
-          className="row main-container"
-          style={{
-            height: "fit-content",
-            minHeight: "100%",
-          }}
-        >
-          {/* left nav bar */}
+        <div className="row main-container">
+          {/* folder nav */}
           <FolderNav
             folders={this.state.folders}
             inFolderEditMode={this.state.inFolderEditMode}
