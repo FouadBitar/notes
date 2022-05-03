@@ -16,7 +16,6 @@ import Modal from "./Modal";
 import React from "react";
 
 // TODO
-// display clean error when unable to connect to the database for example
 // update the read me file with what the app is, how they can run it (i.e. npm i, npm run build for prod, etc. with .env)
 // convert the code to typescript
 // make your routes restful
