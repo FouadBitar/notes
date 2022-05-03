@@ -2,6 +2,9 @@
 import "../CSS/App.css";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
+// Constants
+import { NOTE_ID, DELETE_ID } from "../Constants/index";
+
 // Components and functions
 import { regexCheckIdIsNote, sortArray } from "./Utils";
 import NotePage from "./NotePage";
@@ -14,8 +17,10 @@ import React from "react";
 
 // TODO
 // clean up application files - can you make anything modular or simplify your app file
+// add const final STRING ID name of important components like the note text-area which is "-note"
 // write generic function that updates the state object by parsing the JSON object given to it as input
 // display clean error when unable to connect to the database for example
+// update the read me file with what the app is, how they can run it (i.e. npm i, npm run build for prod, etc. with .env)
 // convert the code to typescript
 // make your routes restful
 // add the pin option so note goes to top of page
@@ -36,7 +41,6 @@ class App extends React.Component {
       noteClickedId: "-1",
     };
 
-    this.onNoteStateChange = this.onNoteStateChange.bind(this);
     this.onAddNote = this.onAddNote.bind(this);
     this.onRemoveNote = this.onRemoveNote.bind(this);
     this.onUpdateNote = this.onUpdateNote.bind(this);
@@ -45,11 +49,7 @@ class App extends React.Component {
     this.addFolderNameToDatabase = this.addFolderNameToDatabase.bind(this);
     this.handleClickEvent = this.handleClickEvent.bind(this);
     this.onAddFolder = this.onAddFolder.bind(this);
-    this.onCancel = this.onCancel.bind(this);
     this.onFolderDelete = this.onFolderDelete.bind(this);
-    this.onAddFolderClick = this.onAddFolderClick.bind(this);
-    this.onEditFolderClick = this.onEditFolderClick.bind(this);
-    this.onFolderSelected = this.onFolderSelected.bind(this);
     this.updateState = this.updateState.bind(this);
   }
 
@@ -86,10 +86,7 @@ class App extends React.Component {
       for (let i = 0; i < buttons.length; i++) {
         var buttonID = buttons[i].getAttribute("id");
 
-        if (
-          buttonID === clickedID + "-done" ||
-          buttonID === clickedID + "-delete"
-        ) {
+        if (buttonID === clickedID + DELETE_ID) {
           buttons[i].removeAttribute("disabled");
         } else {
           buttons[i].setAttribute("disabled", "true");
@@ -99,7 +96,7 @@ class App extends React.Component {
       for (let i = 0; i < textareas.length; i++) {
         var textareaID = textareas[i].getAttribute("id");
 
-        if (textareaID === clickedID + "text-area") {
+        if (textareaID === clickedID + NOTE_ID) {
           textareas[i].removeAttribute("disabled");
         } else {
           textareas[i].setAttribute("disabled", "true");
@@ -117,9 +114,8 @@ class App extends React.Component {
     // remove the disables and save the note
     else if (
       checkPrevClicked &&
-      noteClickedId !== prevNoteID + "text-area" &&
-      noteClickedId !== prevNoteID + "-delete" &&
-      noteClickedId !== prevNoteID + "-done"
+      noteClickedId !== prevNoteID + NOTE_ID &&
+      noteClickedId !== prevNoteID + DELETE_ID
     ) {
       // enable all buttons and text-areas
       for (let i = 0; i < buttons.length; i++) {
@@ -140,13 +136,9 @@ class App extends React.Component {
         noteClickedId: "-1",
       });
     }
-    //if currently in select note, and we click on either done or delete, just enable all buttons and remove previous clicked,
+    //if currently in select note, and we click on delete, just enable all buttons and remove previous clicked,
     //the other event handler will handle the rest
-    else if (
-      checkPrevClicked &&
-      (noteClickedId === prevNoteID + "-delete" ||
-        noteClickedId === prevNoteID + "-done")
-    ) {
+    else if (checkPrevClicked && noteClickedId === prevNoteID + DELETE_ID) {
       // enable all buttons and text-areas
       for (let i = 0; i < buttons.length; i++) {
         buttons[i].removeAttribute("disabled");
@@ -166,6 +158,7 @@ class App extends React.Component {
     }
   }
 
+  // ROUTES
   getData() {
     fetch("/sup", {
       method: "get",
@@ -185,7 +178,7 @@ class App extends React.Component {
 
         let notes = sortArray(data.notes);
 
-        console.log(data.notes);
+        // console.log(data.notes);
 
         this.setState({
           ...this.state,
@@ -271,15 +264,6 @@ class App extends React.Component {
       });
   }
 
-  onNoteStateChange(notes) {
-    if (notes !== null) {
-      this.setState({
-        ...this.state,
-        notes: notes,
-      });
-    }
-  }
-
   onAddNote(newNote) {
     this.addNewRowToDatabase(newNote);
   }
@@ -288,27 +272,6 @@ class App extends React.Component {
   }
   onUpdateNote(updateNote) {
     this.updateRowInDatabase(updateNote);
-  }
-
-  onAddFolderClick() {
-    this.setState({
-      ...this.state,
-      isModal: true,
-    });
-  }
-
-  onEditFolderClick() {
-    this.setState({
-      ...this.state,
-      inFolderEditMode: !this.state.inFolderEditMode,
-    });
-  }
-
-  onFolderSelected(item) {
-    this.setState({
-      ...this.state,
-      currentFolder: item,
-    });
   }
 
   onAddFolder(value) {
@@ -335,26 +298,23 @@ class App extends React.Component {
     let notes = this.state.notes;
   }
 
-  onCancel() {
-    this.setState({
-      ...this.state,
-      isModal: false,
-      errorMessage: "",
-    });
-  }
-
   updateState(obj) {
-    this.setState({ isNotePage: true });
-    // for (var key in obj) {
-    //   if (obj.hasOwnProperty(key)) {
-    //     console.log(key + " -> " + obj[key]);
-    //   }
-    // }
+    // this.setState({ isNotePage: true });
+    console.log("update state called");
+
+    let newState = { ...this.state };
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        newState[key] = obj[key];
+      }
+    }
+    this.setState(newState);
   }
 
   render() {
     return (
       <div className="container-fluid app">
+        {console.log(this.state)}
         {/* top nav bar */}
         <Nav updateState={this.updateState}></Nav>
 
@@ -365,9 +325,7 @@ class App extends React.Component {
             folders={this.state.folders}
             inFolderEditMode={this.state.inFolderEditMode}
             currentFolder={this.state.currentFolder}
-            onAddFolderClick={this.onAddFolderClick}
-            onEditFolderClick={this.onEditFolderClick}
-            onFolderSelected={this.onFolderSelected}
+            updateState={this.updateState}
             onFolderDelete={this.onFolderDelete}
           ></FolderNav>
 
@@ -376,7 +334,7 @@ class App extends React.Component {
             <NotePage
               notes={this.state.notes}
               currentFolder={this.state.currentFolder}
-              onNoteStateChange={this.onNoteStateChange}
+              updateState={this.updateState}
               onAddNote={this.onAddNote}
               onRemoveNote={this.onRemoveNote}
               onUpdateNote={this.onUpdateNote}
@@ -389,7 +347,7 @@ class App extends React.Component {
           show={this.state.isModal}
           errorMessage={this.state.errorMessage}
           onClose={this.onAddFolder}
-          onCancel={this.onCancel}
+          updateState={this.updateState}
         ></Modal>
       </div>
     );

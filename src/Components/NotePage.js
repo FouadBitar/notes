@@ -10,7 +10,8 @@ function NotePage(props) {
     let noteIndex = notes.findIndex((item) => item.id === id);
     notes[noteIndex].text = newValue;
 
-    props.onNoteStateChange(notes);
+    props.updateState({ notes: notes });
+    // props.onNoteStateChange(notes);
   }
 
   function addNote() {

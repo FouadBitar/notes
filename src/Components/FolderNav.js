@@ -32,13 +32,15 @@ function FolderNav(props) {
         <div className="ps-1 pe-1 mb-4 w-90 d-flex justify-content-center">
           <button
             className="m-1 btn btn-sm btn-outline-dark"
-            onClick={props.onAddFolderClick}
+            onClick={() => props.updateState({ isModal: true })}
           >
             Add Folder
           </button>
           <button
             className="m-1 btn btn-sm btn-outline-dark w-100"
-            onClick={props.onEditFolderClick}
+            onClick={() =>
+              props.updateState({ inFolderEditMode: !props.inFolderEditMode })
+            }
           >
             Edit
           </button>
@@ -50,7 +52,9 @@ function FolderNav(props) {
             <div key={item.id} className="row mb-2">
               <button
                 className="btn btn-outline-dark btn-sm w-60"
-                onClick={props.onFolderSelected}
+                onClick={() => {
+                  props.updateState({ currentFolder: item });
+                }}
                 style={
                   props.currentFolder.name === item.name
                     ? {
