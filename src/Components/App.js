@@ -2,11 +2,12 @@
 import { NOTE_ID, DELETE_ID } from "../Constants/index";
 
 // Components and functions
-import { regexCheckIdIsNote, sortArray } from "./Utils";
+import { regexCheckIdIsNote, sortArray, sortArray2 } from "./Utils";
 import NotePage from "./NotePage";
 import FolderNav from "./FolderNav";
 import Nav from "./Nav";
 import Modal from "./Modal";
+import Login from "./Login";
 
 // Frameworks
 import React from "react";
@@ -14,7 +15,6 @@ import axios from "axios";
 
 // TODO
 // add authentication
-// make your routes restful
 // maybe add some sort of logger for both the frontend and the backend to see what requests are being made and the results
 // add the pin option so note goes to top of page
 // add option to move around the notes
@@ -35,6 +35,8 @@ class App extends React.Component {
       errorMessage: "",
       noteClickedId: "-1",
       dbConnection: true,
+      folderEdit: null,
+      token: null,
     };
 
     this.onAddNote = this.onAddNote.bind(this);
@@ -47,6 +49,10 @@ class App extends React.Component {
     this.onAddFolder = this.onAddFolder.bind(this);
     this.onFolderDelete = this.onFolderDelete.bind(this);
     this.updateState = this.updateState.bind(this);
+    this.deleteFolderInDatabase = this.deleteFolderInDatabase.bind(this);
+    this.updateFolderInDatabase = this.updateFolderInDatabase.bind(this);
+    this.onFolderEdit = this.onFolderEdit.bind(this);
+    this.setToken = this.setToken.bind(this);
   }
 
   componentDidMount() {
@@ -174,7 +180,7 @@ class App extends React.Component {
           console.log(data.error);
           this.setState({ dbConnection: false });
         } else {
-          let notes = sortArray(data.notes);
+          let notes = sortArray(data.notes, "last_updated");
 
           this.setState({
             ...this.state,
@@ -198,7 +204,7 @@ class App extends React.Component {
           console.log(data.error);
           this.setState({ dbConnection: false });
         } else {
-          let notes = sortArray(data);
+          let notes = sortArray(data, "last_updated");
 
           this.setState({
             ...this.state,
@@ -237,7 +243,7 @@ class App extends React.Component {
           console.log(data.error);
           this.setState({ dbConnection: false });
         } else {
-          let notes = sortArray(data);
+          let notes = sortArray(data, "last_updated");
 
           this.setState({
             ...this.state,
@@ -257,10 +263,52 @@ class App extends React.Component {
           console.log(data.error);
           this.setState({ dbConnection: false });
         } else {
-          let notes = sortArray(data);
+          let notes = sortArray(data, "last_updated");
 
           this.setState({
             ...this.state,
+            notes: notes,
+          });
+        }
+      });
+  }
+
+  deleteFolderInDatabase(folderID) {
+    axios
+      .delete("/delete/folder/" + folderID, {
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(({ data }) => {
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let folders = data;
+
+          this.setState({
+            ...this.state,
+            folders: folders,
+          });
+        }
+      });
+  }
+
+  updateFolderInDatabase(folder) {
+    axios
+      .put("update/folder", folder, {
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(({ data }) => {
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let folders = data.folders;
+          let notes = data.notes;
+
+          this.setState({
+            ...this.state,
+            folders: folders,
             notes: notes,
           });
         }
@@ -277,33 +325,68 @@ class App extends React.Component {
     this.updateRowInDatabase(updateNote);
   }
 
-  onAddFolder(value) {
-    let val = document.getElementById(value).value;
+  onAddFolder(inputID, folder) {
+    let val = document.getElementById(inputID).value;
 
-    // cannot add empty folder name
-    if (val === "") {
-      this.setState({
-        ...this.state,
-        errorMessage: "Cannot add empty folder name",
-      });
+    // if folder is null, it is not in edit mode - we are adding a new folder
+    if (!folder) {
+      // cannot add empty folder name
+      if (val === "") {
+        this.setState({
+          ...this.state,
+          errorMessage: "Cannot add empty folder name",
+        });
+      } else {
+        this.addFolderNameToDatabase({ name: val });
+        this.setState({
+          ...this.state,
+          isModal: false,
+          errorMessage: "",
+        });
+      }
     } else {
-      this.addFolderNameToDatabase({ name: val });
-      this.setState({
-        ...this.state,
-        isModal: false,
-        errorMessage: "",
-      });
+      // cannot add empty folder name
+      if (val === "") {
+        this.setState({
+          ...this.state,
+          errorMessage: "Cannot update to empty folder name",
+        });
+      } else {
+        this.updateFolderInDatabase({
+          id: folder.id,
+          name: val,
+          oldName: folder.name,
+        });
+        this.setState({
+          ...this.state,
+          isModal: false,
+          isEdit: false,
+          errorMessage: "",
+        });
+      }
     }
   }
 
-  onFolderDelete() {
+  onFolderDelete(folder) {
     // check if there are any notes -> if so display error message
     let notes = this.state.notes;
+    notes = notes.filter((note) => note.folder === folder.name);
+    if (notes.length > 0) {
+      this.setState({
+        ...this.state,
+        errorMessage: "cannot delete folder with notes",
+      });
+    } else {
+      this.deleteFolderInDatabase(folder.id);
+    }
+  }
+
+  onFolderEdit(folder) {
+    console.log(folder);
+    this.setState({ folderEdit: folder, isModal: true });
   }
 
   updateState(obj) {
-    // this.setState({ isNotePage: true });
-
     let newState = { ...this.state };
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
@@ -313,7 +396,14 @@ class App extends React.Component {
     this.setState(newState);
   }
 
+  setToken(token) {
+    this.setState({ token: token });
+  }
+
   render() {
+    if (!this.state.token) {
+      return <Login setToken={this.setToken} />;
+    }
     if (!this.state.dbConnection) {
       return (
         <div>
@@ -335,6 +425,7 @@ class App extends React.Component {
             currentFolder={this.state.currentFolder}
             updateState={this.updateState}
             onFolderDelete={this.onFolderDelete}
+            onFolderEdit={this.onFolderEdit}
           />
 
           {/* display page */}
@@ -353,6 +444,7 @@ class App extends React.Component {
         {/* Modal */}
         <Modal
           show={this.state.isModal}
+          isEdit={this.state.folderEdit}
           errorMessage={this.state.errorMessage}
           onClose={this.onAddFolder}
           updateState={this.updateState}

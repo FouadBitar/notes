@@ -84,6 +84,44 @@ const deleteNote = async (request, response) => {
   }
 };
 
+const deleteFolder = async (request, response) => {
+  const id = request.params.id;
+  try {
+    const deleteFolder = await pool.query(
+      "DELETE FROM folder_names WHERE id=$1",
+      [id]
+    );
+    const getAllFolders = await pool.query("SELECT * FROM folder_names");
+
+    response.status(200).json(getAllFolders.rows);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateFolder = async (request, response) => {
+  const folder = request.body;
+  console.log(folder);
+  try {
+    const updateFolder = await pool.query(
+      "UPDATE folder_names SET name=$1 WHERE id=$2",
+      [folder.name, folder.id]
+    );
+    const updateFolderNamesInNotes = await pool.query(
+      "UPDATE notes SET folder=$1 WHERE folder=$2",
+      [folder.name, folder.oldName]
+    );
+    const getAllFolders = await pool.query("SELECT * FROM folder_names");
+    const getallnotes = await pool.query("SELECT * FROM notes");
+
+    response
+      .status(200)
+      .json({ folders: getAllFolders.rows, notes: getallnotes.rows });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   checkConnection,
   getNotes,
@@ -91,4 +129,6 @@ module.exports = {
   addFolderName,
   updateNote,
   deleteNote,
+  deleteFolder,
+  updateFolder,
 };

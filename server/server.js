@@ -29,6 +29,10 @@ app.put("/update", db.checkConnection, db.updateNote);
 
 app.delete("/delete/:id", db.checkConnection, db.deleteNote);
 
+app.delete("/delete/folder/:id", db.checkConnection, db.deleteFolder);
+
+app.put("/update/folder", db.checkConnection, db.updateFolder);
+
 // TEST ROUTES
 app.get("/test", (req, res) => {
   res.send("hello this is the test");

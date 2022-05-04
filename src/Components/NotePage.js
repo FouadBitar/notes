@@ -25,7 +25,6 @@ function NotePage(props) {
   }
 
   return (
-    // <div className="col pt-3">
     <div className="row">
       <div className="col">
         {props.notes.map((item, i) => {
@@ -56,7 +55,6 @@ function NotePage(props) {
         </button>
       </div>
     </div>
-    // </div>
   );
 }
 
