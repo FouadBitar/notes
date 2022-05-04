@@ -60,7 +60,6 @@ const addFolderName = async (request, response) => {
 
 const updateNote = async (request, response) => {
   const note = request.body;
-
   try {
     await pool.query(
       "UPDATE notes SET text=$1, last_updated=current_timestamp WHERE id=$2",

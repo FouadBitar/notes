@@ -1,4 +1,3 @@
-import "../CSS/NotePage.css";
 import React, { useEffect } from "react";
 
 function Note(props) {

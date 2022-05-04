@@ -1,6 +1,5 @@
 import folderXLogo from "../../node_modules/bootstrap-icons/icons/folder-x.svg";
 import penLogo from "../../node_modules/bootstrap-icons/icons/pen.svg";
-import "../CSS/App.css";
 import React from "react";
 
 function FolderNav(props) {
