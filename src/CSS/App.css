@@ -8,7 +8,7 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  height: 80px;
+  height: 10%;
 }
 
 #logo-title {
@@ -31,8 +31,9 @@
   border-right: 1px solid #212529;
   border-left: 1px solid #212529;
   border-bottom: 1px solid #212529;
-  height: "fit-content";
+  /* height: "fit-content"; */
   min-height: "100%";
+  /* height: "100%"; */
 }
 
 .display-page {

@@ -1,7 +1,5 @@
 import React from "react";
-import "../CSS/App.css";
 import notesLogo from "../images/notes-logo.png";
-import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 function Nav(props) {
   return (

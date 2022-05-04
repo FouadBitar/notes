@@ -1,7 +1,3 @@
-// CSS
-import "../CSS/App.css";
-import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
-
 // Constants
 import { NOTE_ID, DELETE_ID } from "../Constants/index";
 
@@ -14,15 +10,16 @@ import Modal from "./Modal";
 
 // Frameworks
 import React from "react";
+import axios from "axios";
 
 // TODO
-// display clean error when unable to connect to the database for example
-// update the read me file with what the app is, how they can run it (i.e. npm i, npm run build for prod, etc. with .env)
-// convert the code to typescript
+// add authentication
 // make your routes restful
+// maybe add some sort of logger for both the frontend and the backend to see what requests are being made and the results
 // add the pin option so note goes to top of page
 // add option to move around the notes
-// add authentication
+// make application robust - error handling and input validation
+// convert the code to typescript
 
 class App extends React.Component {
   constructor(props) {
@@ -169,12 +166,9 @@ class App extends React.Component {
 
   // ROUTES
   getData() {
-    fetch("/sup", {
-      method: "get",
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((response) => response.json())
-      .then((data) => {
+    axios
+      .get("/sup", { headers: { "Content-Type": "application/json" } })
+      .then(({ data }) => {
         // check if error returned
         if (data.error) {
           console.log(data.error);
@@ -193,17 +187,13 @@ class App extends React.Component {
   }
 
   addNewRowToDatabase(row, newState) {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        note: row,
-        folder: this.state.currentFolder,
-      }),
-    };
-    fetch("/add", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
+    axios
+      .post(
+        "/add",
+        { note: row, folder: this.state.currentFolder },
+        { headers: { "Content-Type": "application/json" } }
+      )
+      .then(({ data }) => {
         if (data.error) {
           console.log(data.error);
           this.setState({ dbConnection: false });
@@ -219,14 +209,11 @@ class App extends React.Component {
   }
 
   addFolderNameToDatabase(row) {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(row),
-    };
-    fetch("/add/foldername", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
+    axios
+      .post("/add/foldername", row, {
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(({ data }) => {
         if (data.error) {
           console.log(data.error);
           this.setState({ dbConnection: false });
@@ -241,14 +228,11 @@ class App extends React.Component {
   }
 
   updateRowInDatabase(row) {
-    const requestOptions = {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(row),
-    };
-    fetch("/update", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
+    axios
+      .put("/update", row, {
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(({ data }) => {
         if (data.error) {
           console.log(data.error);
           this.setState({ dbConnection: false });
@@ -264,13 +248,11 @@ class App extends React.Component {
   }
 
   deleteRowInDatabase(row) {
-    const requestOptions = {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    };
-    fetch("/delete" + row.id, requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
+    axios
+      .delete("/delete/" + row.id, {
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(({ data }) => {
         if (data.error) {
           console.log(data.error);
           this.setState({ dbConnection: false });
@@ -332,7 +314,6 @@ class App extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     if (!this.state.dbConnection) {
       return (
         <div>
@@ -343,10 +324,10 @@ class App extends React.Component {
     return (
       <div className="container-fluid app">
         {/* top nav bar */}
-        <Nav updateState={this.updateState}></Nav>
+        <Nav updateState={this.updateState} />
 
         {/* main row */}
-        <div className="row main-container">
+        <div className="row h-100 main-container">
           {/* folder nav */}
           <FolderNav
             folders={this.state.folders}
@@ -354,7 +335,7 @@ class App extends React.Component {
             currentFolder={this.state.currentFolder}
             updateState={this.updateState}
             onFolderDelete={this.onFolderDelete}
-          ></FolderNav>
+          />
 
           {/* display page */}
           <div className="col pt-3 display-page">
@@ -365,7 +346,7 @@ class App extends React.Component {
               onAddNote={this.onAddNote}
               onRemoveNote={this.onRemoveNote}
               onUpdateNote={this.onUpdateNote}
-            ></NotePage>
+            />
           </div>
         </div>
 
@@ -375,7 +356,7 @@ class App extends React.Component {
           errorMessage={this.state.errorMessage}
           onClose={this.onAddFolder}
           updateState={this.updateState}
-        ></Modal>
+        />
       </div>
     );
   }

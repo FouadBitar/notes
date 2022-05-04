@@ -1,7 +1,5 @@
-import "../CSS/NotePage.css";
 import Note from "./Note";
 import React from "react";
-import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 function NotePage(props) {
   function handleChange(id, newValue) {
@@ -27,6 +25,7 @@ function NotePage(props) {
   }
 
   return (
+    // <div className="col pt-3">
     <div className="row">
       <div className="col">
         {props.notes.map((item, i) => {
@@ -57,6 +56,7 @@ function NotePage(props) {
         </button>
       </div>
     </div>
+    // </div>
   );
 }
 
