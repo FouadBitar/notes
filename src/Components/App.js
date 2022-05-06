@@ -36,7 +36,7 @@ class App extends React.Component {
       noteClickedId: "-1",
       dbConnection: true,
       folderEdit: null,
-      token: null,
+      auth: null, // need to check if there is active cookie that says the user is logged in
     };
 
     this.onAddNote = this.onAddNote.bind(this);
@@ -53,11 +53,50 @@ class App extends React.Component {
     this.updateFolderInDatabase = this.updateFolderInDatabase.bind(this);
     this.onFolderEdit = this.onFolderEdit.bind(this);
     this.setToken = this.setToken.bind(this);
+    this.isLoggedIn = this.isLoggedIn.bind(this);
   }
 
   componentDidMount() {
-    this.getData();
-    this.addEventListenerForClick();
+    // first check to see if the user is logged in by sending request to server with cookie
+    this.isLoggedIn();
+    // only if user logged in make fetch for data
+    if (this.state.auth) {
+      this.getData();
+      this.addEventListenerForClick();
+    }
+  }
+
+  isLoggedIn() {
+    axios
+      .get("/api/login", {
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(({ data }) => {
+        if (data.auth) {
+          this.setState({ auth: data.auth });
+        }
+      });
+  }
+
+  getData() {
+    axios
+      .get("/sup", { headers: { "Content-Type": "application/json" } })
+      .then(({ data }) => {
+        // check if error returned
+        if (data.error) {
+          console.log(data.error);
+          this.setState({ dbConnection: false });
+        } else {
+          let notes = sortArray(data.notes, "last_updated");
+
+          this.setState({
+            ...this.state,
+            folders: data.folder_names,
+            currentFolder: data.folder_names[0] ? data.folder_names[0] : null,
+            notes: notes,
+          });
+        }
+      });
   }
 
   addEventListenerForClick() {
@@ -397,7 +436,7 @@ class App extends React.Component {
   }
 
   setToken(token) {
-    this.setState({ token: token });
+    this.setState({ auth: token });
   }
 
   render() {

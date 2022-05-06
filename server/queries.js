@@ -123,6 +123,7 @@ const updateFolder = async (request, response) => {
 };
 
 module.exports = {
+  pool,
   checkConnection,
   getNotes,
   addNote,
