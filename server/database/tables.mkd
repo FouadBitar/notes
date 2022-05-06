@@ -1,14 +1,23 @@
 <!-- created the folder table -->
+
 create table folder_names (
-    name varchar(50) unique not null
+name varchar(50) unique not null
 );
 
 <!-- creates the notes table -->
+
 create table notes (
-    id SERIAL PRIMARY KEY,
-    text varchar(120),
-    last_updated timestamp without time zone,
-    folder varchar(50)
+id SERIAL PRIMARY KEY,
+text varchar(120),
+last_updated timestamp without time zone,
+folder varchar(50)
 );
 
-sumsum
+<!-- create table for users -->
+
+create table users (
+is SERIAL PRIMARY KEY,
+username varchar(120),
+password varchar(300),
+email varchar(120)
+);

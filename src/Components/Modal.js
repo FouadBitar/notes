@@ -1,5 +1,7 @@
 import React from "react";
 
+const FOLDER_MODAL_INPUT_ID = "folder-modal-input";
+
 function Modal(props) {
   if (!props.show) {
     return null;
@@ -7,18 +9,26 @@ function Modal(props) {
   return (
     <div className="modal">
       <div className="modal-content">
+        {/* input */}
         <input
-          id="modal-input"
+          id={FOLDER_MODAL_INPUT_ID}
           className="form-control"
-          placeholder="enter folder name..."
+          defaultValue={props.isEdit ? props.isEdit.name : null}
+          placeholder={props.isEdit ? null : "enter folder name..."}
         ></input>
         <div style={{ color: "red" }}>
           <p>{props.errorMessage ? props.errorMessage : ""}</p>
         </div>
+
+        {/* buttons */}
         <div className="buttons">
           <button
             className="btn btn-primary w-40 me-3"
-            onClick={(e) => props.onClose("modal-input")}
+            onClick={() =>
+              props.isEdit
+                ? props.onClose(FOLDER_MODAL_INPUT_ID, props.isEdit)
+                : props.onClose(FOLDER_MODAL_INPUT_ID, null)
+            }
           >
             submit
           </button>

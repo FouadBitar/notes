@@ -10,11 +10,24 @@ export function regexCheckIdIsNote(id) {
   return check;
 }
 
-export function sortArray(array) {
+export function sortArray2(array) {
   if (array[0] !== undefined) {
     const sortedArray = array.slice().sort(function (a, b) {
       if (a.last_updated > b.last_updated) return -1;
       else if (a.last_updated < b.last_updated) return 1;
+      else return 0;
+    });
+
+    return sortedArray;
+  } else return [];
+}
+// sort the array
+// 2nd argument: the object key as a string for which the array will be sorted by
+export function sortArray(array, str) {
+  if (array[0] !== undefined) {
+    const sortedArray = array.slice().sort(function (a, b) {
+      if (a[str] > b[str]) return -1;
+      else if (a[str] < b[str]) return 1;
       else return 0;
     });
 

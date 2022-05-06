@@ -1,43 +1,106 @@
-require("dotenv").config();
-console.log(typeof process.env.APP_USER);
+require('dotenv').config()
+const express = require('express')
+const session = require('express-session')
+const pgSession = require('connect-pg-simple')(session)
+const bodyParser = require('body-parser')
+const bcrypt = require('bcrypt') // for hashing passwords
+const cors = require('cors')
+const app = express()
+const db = require('./queries')
 
-const express = require("express");
-const bodyParser = require("body-parser");
-var cors = require("cors");
-const app = express();
-const port = 3000;
+// CONSTANTS
+const PORT = 3000
+const SALT_ROUNDS = 10
+const TWO_HOURS = 1000 * 60 * 60 * 2
 
-app.use(cors());
-
-const db = require("./queries");
-
-app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: 'http://localhost:3001',
+    methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
+    credentials: true,
+  })
+)
+app.use(bodyParser.json())
 app.use(
   bodyParser.urlencoded({
     extended: true,
   })
-);
+)
 
-// ROUTES
-app.get("/sup", db.checkConnection, db.getNotes);
+// SESSION MANAGEMENT
+const store = new pgSession({
+  pool: db.pool, // Connection pool
+  tableName: 'user_sessions', // Use another table-name than the default "session" one
+  // onnect-pg-simple options
+  createTableIfMissing: true,
+})
 
-app.post("/add", db.checkConnection, db.addNote);
+app.set('trust proxy', 1) // trust first proxy
+app.use(
+  session({
+    store: store,
+    secret: process.env.SESS_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    name: process.env.SESSION_ID,
+    cookie: { secure: false, maxAge: TWO_HOURS, sameSite: true },
+  })
+)
 
-app.post("/add/foldername", db.checkConnection, db.addFolderName);
+// AUTH ROUTES
+app.post('/api/register/test', async (req, res) => {
+  const { username, email, password } = req.body
 
-app.put("/update", db.checkConnection, db.updateNote);
+  // check if user exists
+  let user
+  if (username && email && password) {
+    user = await db.pool.query(
+      'SELECT * FROM users WHERE username=$1 OR email=$2;',
+      [username, email]
+    )
+  }
+  user = user.rows.pop()
 
-app.delete("/delete/:id", db.checkConnection, db.deleteNote);
+  if (!user) {
+    // create the user
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+    let newUser = await db.pool.query(
+      'INSERT INTO users(username, password, email) VALUES ($1, $2, $3)',
+      [username, hashedPassword, email]
+    )
 
-// TEST ROUTES
-app.get("/test", (req, res) => {
-  res.send("hello this is the test");
-});
+    newUser = await db.pool.query(
+      'SELECT id, username, email FROM users WHERE username=$1 AND email=$2',
+      [username, email]
+    )
+    newUser = newUser.rows.pop()
 
-app.post("/test", (req, res) => {
-  res.send("still got the put test");
-});
+    req.session.user = newUser
+    console.log(req.session)
 
-app.listen(process.env.PORT || port, () => {
-  console.log(`App running on port ${port}.`);
-});
+    return res.send({ user: newUser })
+  } else {
+    return res.send({ isRegistered: 'user already registered' })
+  }
+})
+
+// bcrypt.compare('password', hash, function (err, result) {});
+
+// APP ROUTES
+app.get('/sup', db.checkConnection, db.getNotes)
+
+app.post('/add', db.checkConnection, db.addNote)
+
+app.post('/add/foldername', db.checkConnection, db.addFolderName)
+
+app.put('/update', db.checkConnection, db.updateNote)
+
+app.delete('/delete/:id', db.checkConnection, db.deleteNote)
+
+app.delete('/delete/folder/:id', db.checkConnection, db.deleteFolder)
+
+app.put('/update/folder', db.checkConnection, db.updateFolder)
+
+app.listen(process.env.PORT || PORT, () => {
+  console.log(`App running on port ${PORT}.`)
+})

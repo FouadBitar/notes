@@ -5,17 +5,24 @@ import React from "react";
 function FolderNav(props) {
   // if edit button is clicked and folder section is in edit mode
   // display the button options for each folder to be edited or deleted
-  function displayEditMode() {
+  function displayEditMode(folder) {
     if (props.inFolderEditMode) {
       return (
         <div>
           <button
             className="btn btn-sm btn-outline-dark w-20"
-            onClick={props.onFolderDelete}
+            onClick={() => {
+              props.onFolderDelete(folder);
+            }}
           >
             <img src={folderXLogo} alt="" />
           </button>
-          <button className="btn btn-sm btn-outline-dark w-20">
+          <button
+            className="btn btn-sm btn-outline-dark w-20"
+            onClick={() => {
+              props.onFolderEdit(folder);
+            }}
+          >
             <img src={penLogo} alt="" />
           </button>
         </div>
@@ -65,7 +72,7 @@ function FolderNav(props) {
               >
                 {item.name}
               </button>
-              {displayEditMode()}
+              {displayEditMode(item)}
             </div>
           );
         })}
