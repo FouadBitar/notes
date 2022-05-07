@@ -1,6 +1,6 @@
-import folderXLogo from "../../node_modules/bootstrap-icons/icons/folder-x.svg";
-import penLogo from "../../node_modules/bootstrap-icons/icons/pen.svg";
-import React from "react";
+import folderXLogo from '../../../node_modules/bootstrap-icons/icons/folder-x.svg'
+import penLogo from '../../../node_modules/bootstrap-icons/icons/pen.svg'
+import React from 'react'
 
 function FolderNav(props) {
   // if edit button is clicked and folder section is in edit mode
@@ -12,7 +12,7 @@ function FolderNav(props) {
           <button
             className="btn btn-sm btn-outline-dark w-20"
             onClick={() => {
-              props.onFolderDelete(folder);
+              props.onFolderDelete(folder)
             }}
           >
             <img src={folderXLogo} alt="" />
@@ -20,15 +20,15 @@ function FolderNav(props) {
           <button
             className="btn btn-sm btn-outline-dark w-20"
             onClick={() => {
-              props.onFolderEdit(folder);
+              props.onFolderEdit(folder)
             }}
           >
             <img src={penLogo} alt="" />
           </button>
         </div>
-      );
+      )
     }
-    return null;
+    return null
   }
 
   return (
@@ -59,13 +59,13 @@ function FolderNav(props) {
               <button
                 className="btn btn-outline-dark btn-sm w-60"
                 onClick={() => {
-                  props.updateState({ currentFolder: item });
+                  props.updateState({ currentFolder: item })
                 }}
                 style={
                   props.currentFolder.name === item.name
                     ? {
-                        color: "white",
-                        backgroundColor: "#212529",
+                        color: 'white',
+                        backgroundColor: '#212529',
                       }
                     : {}
                 }
@@ -74,11 +74,11 @@ function FolderNav(props) {
               </button>
               {displayEditMode(item)}
             </div>
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }
 
-export default FolderNav;
+export default FolderNav

@@ -1,27 +1,27 @@
-import Note from "./Note";
-import React from "react";
+import Note from './Note'
+import React from 'react'
 
-function NotePage(props) {
+function NoteList(props) {
   function handleChange(id, newValue) {
-    let notes = props.notes;
+    let notes = props.notes
 
-    let noteIndex = notes.findIndex((item) => item.id === id);
-    notes[noteIndex].text = newValue;
+    let noteIndex = notes.findIndex((item) => item.id === id)
+    notes[noteIndex].text = newValue
 
-    props.updateState({ notes: notes });
+    props.updateState({ notes: notes })
   }
 
   function addNote() {
-    const newNote = { text: "" };
+    const newNote = { text: '' }
 
-    props.onAddNote(newNote);
+    props.onAddNote(newNote)
   }
 
   function removeNote({ id }) {
-    let notes = props.notes;
-    let removeNote = notes.find((note) => note.id === id);
+    let notes = props.notes
+    let removeNote = notes.find((note) => note.id === id)
 
-    props.onRemoveNote(removeNote);
+    props.onRemoveNote(removeNote)
   }
 
   return (
@@ -36,7 +36,7 @@ function NotePage(props) {
                 </div>
                 <div className="col-2 pe-0 ps-0 h-100">
                   <button
-                    id={item.id + "-delete"}
+                    id={item.id + '-delete'}
                     onClick={() => removeNote(item)}
                     className="btn btn-danger btn-sm m-1 button-done-delete button-small"
                   >
@@ -44,8 +44,8 @@ function NotePage(props) {
                   </button>
                 </div>
               </div>
-            );
-          } else return null;
+            )
+          } else return null
         })}
       </div>
 
@@ -55,7 +55,7 @@ function NotePage(props) {
         </button>
       </div>
     </div>
-  );
+  )
 }
 
-export default NotePage;
+export default NoteList
