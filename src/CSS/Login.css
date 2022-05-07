@@ -1,0 +1,92 @@
+@media screen and (min-width: 800px) {
+  .login-top-container {
+    margin: auto;
+    height: 100vh;
+    width: 60vw;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  .login-second-container {
+    margin: auto;
+    width: 100%;
+    box-sizing: border-box;
+    /* width:  */
+  }
+
+  .login-logo-container {
+    width: 100%;
+    height: 100px;
+    display: flex;
+  }
+
+  .login-logo {
+    margin: auto;
+    width: 100px;
+    height: 100px;
+  }
+
+  .login-header-container {
+    display: flex;
+    margin-bottom: 15px;
+  }
+
+  .login-header {
+    margin: auto;
+  }
+
+  .login-text-container {
+    box-sizing: border-box;
+    border-color: 0.5px solid gray;
+    border-style: groove;
+    border-radius: 4px;
+    /* margin: 10px; */
+    padding: 15px;
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  .login-label {
+    display: block;
+    padding-bottom: 2px;
+    width: 100%;
+  }
+
+  .login-input {
+    display: block;
+    border: 0.5px solid black;
+    border-radius: 5px;
+    padding: 4px;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .login-button {
+    width: 100%;
+    border: 0.5px solid blanchedalmond;
+    border-radius: 5px;
+    color: aliceblue;
+    background-color: #4caf50;
+    margin-top: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
+
+  .login-register-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    color: dodgerblue;
+    background-color: white;
+    font-size: 15px;
+    margin: auto;
+    margin-top: -2px;
+  }
+
+  .login-register-link {
+    vertical-align: middle;
+  }
+}

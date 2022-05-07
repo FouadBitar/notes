@@ -4,7 +4,7 @@ import { NOTE_ID, DELETE_ID } from '../Constants/index';
 // Components and functions
 import { regexCheckIdIsNote, sortArray, sortArray2 } from './Utils';
 import Nav from './Nav';
-import Login from './Login';
+import Login from './Authentication/Login';
 import NotePage from './Notes/NotePage';
 
 // Frameworks
@@ -14,7 +14,8 @@ import { Route, Routes, Navigate } from 'react-router-dom';
 
 // TODO
 // add authentication / add react router dom routing
-// maybe add some sort of logger for both the frontend and the backend to see what requests are being made and the results
+// do not display the logout button if the user is not logged in
+// maybe add some sort of logger to the backend to see what requests are being made and the results
 // add the pin option so note goes to top of page
 // add option to move around the notes
 // make application robust - error handling and input validation
@@ -443,109 +444,66 @@ class App extends React.Component {
   }
 
   render() {
-    console.log(this.state.auth);
     // page has not loaded response from server yet, render nothing
     if (this.state.auth === null) {
-      return <div></div>;
-    }
-
-    let test = true;
-    if (test) {
-      console.log('inside test');
       return (
-        <div className="container-fluid app">
-          <Nav updateState={this.updateState} />
-          <Routes>
-            <Route
-              path="/login"
-              element={<Login setAuth={this.setAuth}></Login>}
-            ></Route>
-            <Route
-              path="/notes"
-              element={
-                this.state.auth ? (
-                  <NotePage
-                    state={this.state}
-                    funcs={
-                      (this.updateState,
-                      this.onFolderDelete,
-                      this.onFolderEdit,
-                      this.updateState,
-                      this.onAddNote,
-                      this.onRemoveNote,
-                      this.onUpdateNote,
-                      this.onAddFolder)
-                    }
-                  />
-                ) : (
-                  <Navigate to="/login"></Navigate>
-                )
-              }
-            ></Route>
-            <Route
-              path="*"
-              element={
-                <Navigate to={this.state.auth ? '/notes' : '/login'} replace />
-              }
-            />
-          </Routes>
+        <div>
+          <h3>Loading...</h3>
         </div>
       );
     }
 
-    if (!this.state.auth) {
-      return <Login setAuth={this.setAuth} />;
-    }
+    // if there is an error connecting to the database, display error
     if (!this.state.dbConnection) {
       return (
         <div>
-          <h3>Could not connect to the database</h3>
+          <h3>Cannot connect to the database, please try again...</h3>
         </div>
       );
     }
 
-    // <main style={{ padding: '1rem', fontSize: '20px' }}>
-    //   <p>There's nothing here!</p>
-    // </main>;
-    // return (
-    //   <div className="container-fluid app">
-    //     {/* top nav bar */}
-    //     <Nav updateState={this.updateState} />
+    // if the user is not authenticated, the user is only able to access the login page
+    if (!this.state.auth) {
+      return (
+        <Routes>
+          <Route
+            path="*"
+            element={<Login updateState={this.updateState}></Login>}
+          ></Route>
+        </Routes>
+      );
+    }
 
-    //     {/* main row */}
-    //     <div className="row h-100 main-container">
-    //       {/* folder nav */}
-    //       <FolderNav
-    //         folders={this.state.folders}
-    //         inFolderEditMode={this.state.inFolderEditMode}
-    //         currentFolder={this.state.currentFolder}
-    //         updateState={this.updateState}
-    //         onFolderDelete={this.onFolderDelete}
-    //         onFolderEdit={this.onFolderEdit}
-    //       />
-
-    //       {/* display page */}
-    //       <div className="col pt-3 display-page">
-    //         <NoteList
-    //           notes={this.state.notes}
-    //           currentFolder={this.state.currentFolder}
-    //           updateState={this.updateState}
-    //           onAddNote={this.onAddNote}
-    //           onRemoveNote={this.onRemoveNote}
-    //           onUpdateNote={this.onUpdateNote}
-    //         />
-    //       </div>
-    //       {/* Modal */}
-    //       <Modal
-    //         show={this.state.isModal}
-    //         isEdit={this.state.folderEdit}
-    //         errorMessage={this.state.errorMessage}
-    //         onClose={this.onAddFolder}
-    //         updateState={this.updateState}
-    //       />
-    //     </div>
-    //   </div>
-    // );
+    // user is authenticated, return the app with its routes
+    return (
+      // <div className="container-fluid app">
+      <div>
+        <Nav updateState={this.updateState} />
+        <Routes>
+          {/* <Route
+            path="/login"
+            element={<Login setAuth={this.setAuth}></Login>}
+          ></Route> */}
+          <Route
+            path="/notes"
+            element={
+              <NotePage
+                state={this.state}
+                updateState={this.updateState}
+                onFolderDelete={this.onFolderDelete}
+                onFolderEdit={this.onFolderEdit}
+                onAddNote={this.onAddNote}
+                onRemoveNote={this.onRemoveNote}
+                onUpdateNote={this.onUpdateNote}
+                onAddFolder={this.onAddFolder}
+              />
+            }
+          ></Route>
+          {/* for all other routes entered, redirect to notes page */}
+          <Route path="*" element={<Navigate to={'/notes'} replace />} />
+        </Routes>
+      </div>
+    );
   }
 }
 
