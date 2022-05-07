@@ -1,20 +1,19 @@
 // Constants
-import { NOTE_ID, DELETE_ID } from "../Constants/index";
+import { NOTE_ID, DELETE_ID } from '../Constants/index';
 
 // Components and functions
-import { regexCheckIdIsNote, sortArray, sortArray2 } from "./Utils";
-import NotePage from "./NotePage";
-import FolderNav from "./FolderNav";
-import Nav from "./Nav";
-import Modal from "./Modal";
-import Login from "./Login";
+import { regexCheckIdIsNote, sortArray, sortArray2 } from './Utils';
+import Nav from './Nav';
+import Login from './Login';
+import NotePage from './Notes/NotePage';
 
 // Frameworks
-import React from "react";
-import axios from "axios";
+import React from 'react';
+import axios from 'axios';
+import { Route, Routes, Navigate } from 'react-router-dom';
 
 // TODO
-// add authentication
+// add authentication / add react router dom routing
 // maybe add some sort of logger for both the frontend and the backend to see what requests are being made and the results
 // add the pin option so note goes to top of page
 // add option to move around the notes
@@ -32,8 +31,8 @@ class App extends React.Component {
       notes: [],
       folders: [],
       currentFolder: null,
-      errorMessage: "",
-      noteClickedId: "-1",
+      errorMessage: '',
+      noteClickedId: '-1',
       dbConnection: true,
       folderEdit: null,
       auth: null, // need to check if there is active cookie that says the user is logged in
@@ -52,42 +51,46 @@ class App extends React.Component {
     this.deleteFolderInDatabase = this.deleteFolderInDatabase.bind(this);
     this.updateFolderInDatabase = this.updateFolderInDatabase.bind(this);
     this.onFolderEdit = this.onFolderEdit.bind(this);
-    this.setToken = this.setToken.bind(this);
+    this.setAuth = this.setAuth.bind(this);
     this.isLoggedIn = this.isLoggedIn.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // first check to see if the user is logged in by sending request to server with cookie
-    this.isLoggedIn();
-    // only if user logged in make fetch for data
+    await this.isLoggedIn();
+    // if user is logged in fetch data to display home page
     if (this.state.auth) {
       this.getData();
       this.addEventListenerForClick();
     }
   }
 
-  isLoggedIn() {
-    axios
-      .get("/api/login", {
-        headers: { "Content-Type": "application/json" },
+  async isLoggedIn() {
+    let res = await axios
+      .get('/api/login', {
+        headers: { 'Content-Type': 'application/json' },
       })
       .then(({ data }) => {
-        if (data.auth) {
-          this.setState({ auth: data.auth });
+        if (data.isAuthenticated) {
+          this.setAuth(data.isAuthenticated);
+          return data.isAuthenticated;
+        } else {
+          this.setAuth(false);
+          return false;
         }
       });
   }
 
   getData() {
     axios
-      .get("/sup", { headers: { "Content-Type": "application/json" } })
+      .get('/sup', { headers: { 'Content-Type': 'application/json' } })
       .then(({ data }) => {
         // check if error returned
         if (data.error) {
           console.log(data.error);
           this.setState({ dbConnection: false });
         } else {
-          let notes = sortArray(data.notes, "last_updated");
+          let notes = sortArray(data.notes, 'last_updated');
 
           this.setState({
             ...this.state,
@@ -100,7 +103,7 @@ class App extends React.Component {
   }
 
   addEventListenerForClick() {
-    document.addEventListener("click", this.handleClickEvent, false);
+    document.addEventListener('click', this.handleClickEvent, false);
   }
 
   handleClickEvent(e) {
@@ -112,7 +115,7 @@ class App extends React.Component {
     const checkClicked = regexCheckIdIsNote(noteClickedId);
 
     // get all buttons of page
-    var buttons = document.getElementsByTagName("button");
+    var buttons = document.getElementsByTagName('button');
 
     // get all notes of the page
     let noteIds = [];
@@ -128,29 +131,29 @@ class App extends React.Component {
 
     // var textareas2 = document.getElementsByTagName("textarea");
 
-    var prevNoteID = prevNoteClickedId.replace(/[^0-9]/g, "");
-    var clickedID = noteClickedId.replace(/[^0-9]/g, "");
+    var prevNoteID = prevNoteClickedId.replace(/[^0-9]/g, '');
+    var clickedID = noteClickedId.replace(/[^0-9]/g, '');
 
     // if nothing was clicked before and a note is clicked now
-    if (prevNoteClickedId === "-1" && checkClicked) {
+    if (prevNoteClickedId === '-1' && checkClicked) {
       //disable all other buttons
       for (let i = 0; i < buttons.length; i++) {
-        var buttonID = buttons[i].getAttribute("id");
+        var buttonID = buttons[i].getAttribute('id');
 
         if (buttonID === clickedID + DELETE_ID) {
-          buttons[i].removeAttribute("disabled");
+          buttons[i].removeAttribute('disabled');
         } else {
-          buttons[i].setAttribute("disabled", "true");
+          buttons[i].setAttribute('disabled', 'true');
         }
       }
       //disable all other text areas
       for (let i = 0; i < textareas.length; i++) {
-        var textareaID = textareas[i].getAttribute("id");
+        var textareaID = textareas[i].getAttribute('id');
 
         if (textareaID === clickedID + NOTE_ID) {
-          textareas[i].removeAttribute("disabled");
+          textareas[i].removeAttribute('disabled');
         } else {
-          textareas[i].setAttribute("disabled", "true");
+          textareas[i].setAttribute('disabled', 'true');
         }
       }
 
@@ -170,10 +173,10 @@ class App extends React.Component {
     ) {
       // enable all buttons and text-areas
       for (let i = 0; i < buttons.length; i++) {
-        buttons[i].removeAttribute("disabled");
+        buttons[i].removeAttribute('disabled');
       }
       for (let i = 0; i < textareas.length; i++) {
-        textareas[i].removeAttribute("disabled");
+        textareas[i].removeAttribute('disabled');
       }
 
       // update the note
@@ -184,7 +187,7 @@ class App extends React.Component {
       // erase previous clicked note as nothing is clicked now and we start from scratch
       this.setState({
         ...this.state,
-        noteClickedId: "-1",
+        noteClickedId: '-1',
       });
     }
     //if currently in select note, and we click on delete, just enable all buttons and remove previous clicked,
@@ -192,16 +195,16 @@ class App extends React.Component {
     else if (checkPrevClicked && noteClickedId === prevNoteID + DELETE_ID) {
       // enable all buttons and text-areas
       for (let i = 0; i < buttons.length; i++) {
-        buttons[i].removeAttribute("disabled");
+        buttons[i].removeAttribute('disabled');
       }
       for (let i = 0; i < textareas.length; i++) {
-        textareas[i].removeAttribute("disabled");
+        textareas[i].removeAttribute('disabled');
       }
 
       // erase previous clicked note as nothing is clicked now and we start from scratch
       this.setState({
         ...this.state,
-        noteClickedId: "-1",
+        noteClickedId: '-1',
       });
     }
     //if no note selected and we click on anything besides a note (text-area), dont do anything
@@ -212,14 +215,14 @@ class App extends React.Component {
   // ROUTES
   getData() {
     axios
-      .get("/sup", { headers: { "Content-Type": "application/json" } })
+      .get('/sup', { headers: { 'Content-Type': 'application/json' } })
       .then(({ data }) => {
         // check if error returned
         if (data.error) {
           console.log(data.error);
           this.setState({ dbConnection: false });
         } else {
-          let notes = sortArray(data.notes, "last_updated");
+          let notes = sortArray(data.notes, 'last_updated');
 
           this.setState({
             ...this.state,
@@ -234,16 +237,16 @@ class App extends React.Component {
   addNewRowToDatabase(row, newState) {
     axios
       .post(
-        "/add",
+        '/add',
         { note: row, folder: this.state.currentFolder },
-        { headers: { "Content-Type": "application/json" } }
+        { headers: { 'Content-Type': 'application/json' } }
       )
       .then(({ data }) => {
         if (data.error) {
           console.log(data.error);
           this.setState({ dbConnection: false });
         } else {
-          let notes = sortArray(data, "last_updated");
+          let notes = sortArray(data, 'last_updated');
 
           this.setState({
             ...this.state,
@@ -255,8 +258,8 @@ class App extends React.Component {
 
   addFolderNameToDatabase(row) {
     axios
-      .post("/add/foldername", row, {
-        headers: { "Content-Type": "application/json" },
+      .post('/add/foldername', row, {
+        headers: { 'Content-Type': 'application/json' },
       })
       .then(({ data }) => {
         if (data.error) {
@@ -274,15 +277,15 @@ class App extends React.Component {
 
   updateRowInDatabase(row) {
     axios
-      .put("/update", row, {
-        headers: { "Content-Type": "application/json" },
+      .put('/update', row, {
+        headers: { 'Content-Type': 'application/json' },
       })
       .then(({ data }) => {
         if (data.error) {
           console.log(data.error);
           this.setState({ dbConnection: false });
         } else {
-          let notes = sortArray(data, "last_updated");
+          let notes = sortArray(data, 'last_updated');
 
           this.setState({
             ...this.state,
@@ -294,15 +297,15 @@ class App extends React.Component {
 
   deleteRowInDatabase(row) {
     axios
-      .delete("/delete/" + row.id, {
-        headers: { "Content-Type": "application/json" },
+      .delete('/delete/' + row.id, {
+        headers: { 'Content-Type': 'application/json' },
       })
       .then(({ data }) => {
         if (data.error) {
           console.log(data.error);
           this.setState({ dbConnection: false });
         } else {
-          let notes = sortArray(data, "last_updated");
+          let notes = sortArray(data, 'last_updated');
 
           this.setState({
             ...this.state,
@@ -314,8 +317,8 @@ class App extends React.Component {
 
   deleteFolderInDatabase(folderID) {
     axios
-      .delete("/delete/folder/" + folderID, {
-        headers: { "Content-Type": "application/json" },
+      .delete('/delete/folder/' + folderID, {
+        headers: { 'Content-Type': 'application/json' },
       })
       .then(({ data }) => {
         if (data.error) {
@@ -334,8 +337,8 @@ class App extends React.Component {
 
   updateFolderInDatabase(folder) {
     axios
-      .put("update/folder", folder, {
-        headers: { "Content-Type": "application/json" },
+      .put('update/folder', folder, {
+        headers: { 'Content-Type': 'application/json' },
       })
       .then(({ data }) => {
         if (data.error) {
@@ -370,25 +373,25 @@ class App extends React.Component {
     // if folder is null, it is not in edit mode - we are adding a new folder
     if (!folder) {
       // cannot add empty folder name
-      if (val === "") {
+      if (val === '') {
         this.setState({
           ...this.state,
-          errorMessage: "Cannot add empty folder name",
+          errorMessage: 'Cannot add empty folder name',
         });
       } else {
         this.addFolderNameToDatabase({ name: val });
         this.setState({
           ...this.state,
           isModal: false,
-          errorMessage: "",
+          errorMessage: '',
         });
       }
     } else {
       // cannot add empty folder name
-      if (val === "") {
+      if (val === '') {
         this.setState({
           ...this.state,
-          errorMessage: "Cannot update to empty folder name",
+          errorMessage: 'Cannot update to empty folder name',
         });
       } else {
         this.updateFolderInDatabase({
@@ -400,7 +403,7 @@ class App extends React.Component {
           ...this.state,
           isModal: false,
           isEdit: false,
-          errorMessage: "",
+          errorMessage: '',
         });
       }
     }
@@ -413,7 +416,7 @@ class App extends React.Component {
     if (notes.length > 0) {
       this.setState({
         ...this.state,
-        errorMessage: "cannot delete folder with notes",
+        errorMessage: 'cannot delete folder with notes',
       });
     } else {
       this.deleteFolderInDatabase(folder.id);
@@ -435,13 +438,63 @@ class App extends React.Component {
     this.setState(newState);
   }
 
-  setToken(token) {
-    this.setState({ auth: token });
+  setAuth(isAuthenticated) {
+    this.setState({ auth: isAuthenticated });
   }
 
   render() {
-    if (!this.state.token) {
-      return <Login setToken={this.setToken} />;
+    console.log(this.state.auth);
+    // page has not loaded response from server yet, render nothing
+    if (this.state.auth === null) {
+      return <div></div>;
+    }
+
+    let test = true;
+    if (test) {
+      console.log('inside test');
+      return (
+        <div className="container-fluid app">
+          <Nav updateState={this.updateState} />
+          <Routes>
+            <Route
+              path="/login"
+              element={<Login setAuth={this.setAuth}></Login>}
+            ></Route>
+            <Route
+              path="/notes"
+              element={
+                this.state.auth ? (
+                  <NotePage
+                    state={this.state}
+                    funcs={
+                      (this.updateState,
+                      this.onFolderDelete,
+                      this.onFolderEdit,
+                      this.updateState,
+                      this.onAddNote,
+                      this.onRemoveNote,
+                      this.onUpdateNote,
+                      this.onAddFolder)
+                    }
+                  />
+                ) : (
+                  <Navigate to="/login"></Navigate>
+                )
+              }
+            ></Route>
+            <Route
+              path="*"
+              element={
+                <Navigate to={this.state.auth ? '/notes' : '/login'} replace />
+              }
+            />
+          </Routes>
+        </div>
+      );
+    }
+
+    if (!this.state.auth) {
+      return <Login setAuth={this.setAuth} />;
     }
     if (!this.state.dbConnection) {
       return (
@@ -450,46 +503,49 @@ class App extends React.Component {
         </div>
       );
     }
-    return (
-      <div className="container-fluid app">
-        {/* top nav bar */}
-        <Nav updateState={this.updateState} />
 
-        {/* main row */}
-        <div className="row h-100 main-container">
-          {/* folder nav */}
-          <FolderNav
-            folders={this.state.folders}
-            inFolderEditMode={this.state.inFolderEditMode}
-            currentFolder={this.state.currentFolder}
-            updateState={this.updateState}
-            onFolderDelete={this.onFolderDelete}
-            onFolderEdit={this.onFolderEdit}
-          />
+    // <main style={{ padding: '1rem', fontSize: '20px' }}>
+    //   <p>There's nothing here!</p>
+    // </main>;
+    // return (
+    //   <div className="container-fluid app">
+    //     {/* top nav bar */}
+    //     <Nav updateState={this.updateState} />
 
-          {/* display page */}
-          <div className="col pt-3 display-page">
-            <NotePage
-              notes={this.state.notes}
-              currentFolder={this.state.currentFolder}
-              updateState={this.updateState}
-              onAddNote={this.onAddNote}
-              onRemoveNote={this.onRemoveNote}
-              onUpdateNote={this.onUpdateNote}
-            />
-          </div>
-        </div>
+    //     {/* main row */}
+    //     <div className="row h-100 main-container">
+    //       {/* folder nav */}
+    //       <FolderNav
+    //         folders={this.state.folders}
+    //         inFolderEditMode={this.state.inFolderEditMode}
+    //         currentFolder={this.state.currentFolder}
+    //         updateState={this.updateState}
+    //         onFolderDelete={this.onFolderDelete}
+    //         onFolderEdit={this.onFolderEdit}
+    //       />
 
-        {/* Modal */}
-        <Modal
-          show={this.state.isModal}
-          isEdit={this.state.folderEdit}
-          errorMessage={this.state.errorMessage}
-          onClose={this.onAddFolder}
-          updateState={this.updateState}
-        />
-      </div>
-    );
+    //       {/* display page */}
+    //       <div className="col pt-3 display-page">
+    //         <NoteList
+    //           notes={this.state.notes}
+    //           currentFolder={this.state.currentFolder}
+    //           updateState={this.updateState}
+    //           onAddNote={this.onAddNote}
+    //           onRemoveNote={this.onRemoveNote}
+    //           onUpdateNote={this.onUpdateNote}
+    //         />
+    //       </div>
+    //       {/* Modal */}
+    //       <Modal
+    //         show={this.state.isModal}
+    //         isEdit={this.state.folderEdit}
+    //         errorMessage={this.state.errorMessage}
+    //         onClose={this.onAddFolder}
+    //         updateState={this.updateState}
+    //       />
+    //     </div>
+    //   </div>
+    // );
   }
 }
 

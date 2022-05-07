@@ -48,6 +48,25 @@ app.use(
 )
 
 // AUTH ROUTES
+// TODO:
+// - implement login check middleware to check if req.session already has a user set
+
+const redirectLogin = (req, res, next) => {
+  if (!req.session.user) {
+    res.send({ isAuthenticated: 'no' })
+  } else {
+    next()
+  }
+}
+
+const redirectHome = (req, res, next) => {
+  if (req.session.user) {
+    res.send({ isAuthenticated: 'yes' })
+  } else {
+    next()
+  }
+}
+
 app.post('/api/register/test', async (req, res) => {
   const { username, email, password } = req.body
 
@@ -84,7 +103,32 @@ app.post('/api/register/test', async (req, res) => {
   }
 })
 
-// bcrypt.compare('password', hash, function (err, result) {});
+app.post('/api/login/test', redirectHome, async (req, res) => {
+  console.log('inside login post')
+  const { email, password } = req.body
+
+  // check if the user exists
+  let user = await db.pool.query('SELECT * FROM users WHERE email=$1', [email])
+  if (user.rows.length) {
+    user = user.rows.find((e) => e.email === email)
+    let isMatch = await bcrypt.compare(password, user.password)
+    // passwords match
+    if (isMatch) {
+      req.session.user = user
+      res.send({ isAuthenticated: true })
+    } else {
+      res.send({ isAuthenticated: false })
+    }
+  }
+})
+
+app.get('/api/login', async (req, res) => {
+  if (req.session.user) {
+    res.send({ isAuthenticated: true })
+  } else {
+    res.send({ isAuthenticated: false })
+  }
+})
 
 // APP ROUTES
 app.get('/sup', db.checkConnection, db.getNotes)
