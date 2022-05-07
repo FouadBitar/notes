@@ -1,35 +1,9 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
-function Login(props) {
+function Register() {
   const [username, setUserName] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-
-  let navigate = useNavigate();
-
-  function login(email, pass) {
-    axios
-      .post(
-        '/api/login/test',
-        { email: email, password: pass },
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true,
-        }
-      )
-      .then(({ data }) => {
-        if (data.error) {
-          console.log(data.error);
-          //   this.setState({ dbConnection: false });
-        } else {
-          // set authentication to true
-          props.setAuth(data.auth);
-        }
-      });
-  }
-
   function register(user, email, password) {
     axios
       .post('/api/register', {
@@ -43,7 +17,6 @@ function Login(props) {
         }
       });
   }
-
   return (
     <div>
       <h3
@@ -54,7 +27,7 @@ function Login(props) {
           margin: '0',
         }}
       >
-        Login
+        Register
       </h3>
       <div style={{ padding: '1rem' }}>
         <div style={{ paddingBottom: '1rem' }}>
@@ -77,11 +50,9 @@ function Login(props) {
             Submit
           </button>
         </div>
-
-        <button onClick={() => navigate('/testing123')}>test</button>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default Register;
